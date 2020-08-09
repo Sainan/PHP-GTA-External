@@ -63,6 +63,6 @@ class GtaExternal
 
 	function getPlayerPed() : Pointer
 	{
-		return $this->getPedFactory()->add(8)->dereference()->add(4);
+		return $this->getPedFactory()->add(8)->dereference();
 	}
 }

@@ -1,3 +1,3 @@
 <?php
 require "php-src/GtaExternal.php";
-(new GtaExternal\GtaExternal())->getPlayerPed()->add(0x028)->writeByte(255);
+(new GtaExternal\GtaExternal())->getPlayerPed()->add(0x02C)->writeByte(255);
