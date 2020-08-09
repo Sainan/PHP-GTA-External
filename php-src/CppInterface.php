@@ -12,6 +12,15 @@ class CppInterface
 		return intval(shell_exec("\"".__DIR__."/../cpp-bin/get-module-base.exe\" \"$process\" \"$module\""));
 	}
 
+	static function getModulePath(string $process, ?string $module = null): string
+	{
+		if($module == null)
+		{
+			$module = $process;
+		}
+		return shell_exec("\"".__DIR__."/../cpp-bin/get-module-path.exe\" \"$process\" \"$module\"");
+	}
+
 	static function readBytes(string $process, int $address, int $bytes) : string
 	{
 		return shell_exec("\"".__DIR__."/../cpp-bin/read-bytes.exe\" \"$process\" \"$address\" \"$bytes\"");

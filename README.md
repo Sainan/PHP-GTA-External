@@ -15,3 +15,7 @@ Optionally, if you want to build the shady exe files yourself, get MinGW-W64 and
 - Invisibility
     - `php invisible-on.php`
     - `php invisible-off.php`
+
+For debugging:
+
+- `php edition.php` — which of Steam, Social Club, or Epic Games was detected 
