@@ -58,7 +58,7 @@ class GtaExternal
 		// 4. Double-click the QWORD that is being moved into RAX
 		// 5. Subtract the base address from the hex value after ".data:"
 		// 6. You've made the difference, now save it:
-		return $this->getEditionOffset(0x24B0C50, 0x24ACB48, 0x24AECE0)->dereference();
+		return $this->getEditionOffset(0x24CD000, 0x24C8858, 0x24C8858)->dereference();
 	}
 
 	function getPlayerPed() : Pointer
