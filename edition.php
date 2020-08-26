@@ -1,6 +1,6 @@
 <?php
 namespace GtaExternal;
-require "php-src/GtaExternal.php";
+require "src/GtaExternal.php";
 switch((new GtaExternal())->edition)
 {
 	case EDITION_STEAM:

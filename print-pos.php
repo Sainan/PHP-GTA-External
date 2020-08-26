@@ -1,5 +1,5 @@
 <?php
-require "php-src/GtaExternal.php";
+require "src/GtaExternal.php";
 
 $navigation = (new \GtaExternal\GtaExternal())->getPlayerPed()->add(0x30)->dereference();
 echo "X: ".$navigation->add(0x50)->readFloat()."\n";

@@ -1,14 +1,15 @@
 # PHP GTA External
 
-A proof-of-concept external trainer/mod menu for GTA V written in PHP\*.
-
-\* featuring some shady exe files written in C++ to extend PHP; I just couldn't be bothered to write a PHP extension.
+A proof-of-concept external trainer/mod menu for GTA V written in PHP using FFI to interface with a custom C++ DLL.
 
 ## Dependencies
 
-- PHP-CLI >=7.2 — the easiest way to get this is to just [get Cone](https://getcone.org) which will install PHP-CLI with itself.
+- PHP-CLI >= 7.4 — the easiest way to get this is to just [get Cone](https://getcone.org) which will install PHP-CLI with itself.
+- PHP FFI Extension — Head into your `%ProgramFiles%` folder, find the "PHP" folder, open the `php.ini` in your favourite text editor, and add `extension=ffi` at the end. 
 
-Optionally, if you want to build the shady exe files yourself, get MinGW-W64 and run `./generate-shady-exe-files.sh` using Git Bash. Doing it this way was easiest for me, but you're free to do it your way, which I'm sure is better. ;)
+### The DLL
+
+Because not all functionality needed is available in standard PHP, FFI is used to interface with `bin/cpp_api.dll`, which was compiled from `src/cpp_api.cpp`. If it makes you feel any better, you can use your favourite compiler to compile it yourself.
 
 ## What it can do
 
@@ -18,4 +19,4 @@ Optionally, if you want to build the shady exe files yourself, get MinGW-W64 and
 - Show your position
     - `php print-pos.php`
 - Detect your edition (Steam, Social Club, or Epic Games)
-    - `php edition.php` 
+    - `php edition.php`

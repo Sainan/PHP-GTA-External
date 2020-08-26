@@ -1,7 +1,7 @@
-<?php
+<?php /** @noinspection PhpUndefinedMethodInspection */
 namespace GtaExternal;
 
-require_once __DIR__."/CppInterface.php";
+require_once __DIR__."/cpp_api.php";
 require_once __DIR__."/Pointer.php";
 
 const EDITION_STEAM = 0;
@@ -10,21 +10,23 @@ const EDITION_EPIC_GAMES = 2;
 
 class GtaExternal
 {
-	public $base;
-	public $edition;
+	public Pointer $base;
+	public int $edition;
 
 	function __construct()
 	{
-		$this->base = new Pointer("GTA5.exe", CppInterface::getModuleBase("GTA5.exe"));
-		if($this->base->isNullptr())
+		global $cpp_api;
+		$process_id = $cpp_api->get_process_id("GTA5.exe");
+		if($process_id == -1)
 		{
 			die("GTA isn't open?\n");
 		}
-		if(CppInterface::getModuleBase("GTA5.exe", "steam_api64.dll") != 0)
+		$this->base = new Pointer($process_id, $cpp_api->get_module_base($process_id, "GTA5.exe"));
+		if($cpp_api->get_module_base($process_id, "steam_api64.dll") != 0)
 		{
 			$this->edition = EDITION_STEAM;
 		}
-		else if(is_dir(dirname(CppInterface::getModulePath("GTA5.exe"))."/.egstore/"))
+		else if(is_dir(dirname($cpp_api->get_module_path($process_id, "GTA5.exe"))."/.egstore/"))
 		{
 			$this->edition = EDITION_EPIC_GAMES;
 		}
@@ -41,12 +43,10 @@ class GtaExternal
 			case EDITION_STEAM:
 				return $this->base->add($steam_offset);
 
-			case EDITION_SOCIAL_CLUB:
-				return $this->base->add($sc_offset);
-
 			case EDITION_EPIC_GAMES:
 				return $this->base->add($egs_offset);
 		}
+		return $this->base->add($sc_offset);
 	}
 
 	function getPedFactory() : Pointer
