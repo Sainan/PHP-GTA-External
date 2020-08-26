@@ -4,13 +4,14 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 
-#define FFI_DECL extern "C" __declspec(dllexport)
+#define og_extern extern
+#define extern og_extern "C" __declspec(dllexport)
+#include "cpp_api.h"
 
 static char return_buffer[260];
-
 static_assert(sizeof(return_buffer) >= MAX_PATH, "return buffer can't hold a path");
 
-FFI_DECL int32_t get_process_id(const char* exe_file)
+int32_t get_process_id(const char* exe_file)
 {
 	const HANDLE processSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (processSnapshot != INVALID_HANDLE_VALUE)
@@ -33,7 +34,7 @@ FFI_DECL int32_t get_process_id(const char* exe_file)
 	return -1;
 }
 
-FFI_DECL uint64_t get_module_base(int32_t process_id, const char* module)
+uint64_t get_module_base(int32_t process_id, const char* module)
 {
 	const HANDLE moduleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, process_id);
 	if (moduleSnapshot != INVALID_HANDLE_VALUE)
@@ -56,7 +57,7 @@ FFI_DECL uint64_t get_module_base(int32_t process_id, const char* module)
 	return 0;
 }
 
-FFI_DECL const char* get_module_path(int32_t process_id, const char* module)
+const char* get_module_path(int32_t process_id, const char* module)
 {
 	const HANDLE moduleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, process_id);
 	if (moduleSnapshot != INVALID_HANDLE_VALUE)
@@ -80,7 +81,7 @@ FFI_DECL const char* get_module_path(int32_t process_id, const char* module)
 	return "";
 }
 
-FFI_DECL const char* read_bytes(int32_t process_id, uint64_t address, uint8_t bytes)
+const char* read_bytes(int32_t process_id, uint64_t address, uint8_t bytes)
 {
 	constexpr uint8_t limit = (sizeof(return_buffer) / 2) - 1;
 	if (bytes > limit)
@@ -102,7 +103,7 @@ FFI_DECL const char* read_bytes(int32_t process_id, uint64_t address, uint8_t by
 	return return_buffer;
 }
 
-FFI_DECL void write_bytes(int32_t process_id, uint64_t address, const char* hex_data)
+void write_bytes(int32_t process_id, uint64_t address, const char* hex_data)
 {
 	const size_t bytes = strlen(hex_data) / 2;
 	auto buffer = (char*)malloc(bytes);
