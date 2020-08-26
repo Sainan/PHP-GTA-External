@@ -1,0 +1,5 @@
+{
+    "require": {
+        "gabrielrcouto/php-gui": "dev-master"
+    }
+}

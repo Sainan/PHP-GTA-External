@@ -1,2 +1,5 @@
 .idea/
 .vs/
+bin/
+vendor/
+PHP-GTA-External.zip

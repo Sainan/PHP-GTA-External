@@ -36,6 +36,19 @@ class GtaExternal
 		}
 	}
 
+	function getEditionName() : string
+	{
+		switch($this->edition)
+		{
+			case EDITION_STEAM:
+				return "Steam";
+
+			case EDITION_EPIC_GAMES:
+				return "Epic Games";
+		}
+		return "Social Club";
+	}
+
 	function getEditionOffset(int $steam_offset, int $sc_offset, int $egs_offset) : Pointer
 	{
 		switch($this->edition)
