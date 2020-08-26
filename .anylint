@@ -1,4 +1,0 @@
-{
-	"disable": ["cpp"],
-	"php_has_html": false
-}
