@@ -1,4 +1,9 @@
 {
+	"autoload": {
+		"psr-4": {
+			"GtaExternal\\": "src/"
+		}
+	},
     "require": {
         "gabrielrcouto/php-gui": "dev-master"
     }

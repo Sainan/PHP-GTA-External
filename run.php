@@ -1,10 +1,10 @@
 <?php
-require "src/GtaExternal.php";
-$gta_external = (new \GtaExternal\GtaExternal());
-
 require "vendor/autoload.php";
-use Gui\Application;
-use Gui\Components\Label;
+use GtaExternal\GtaExternal;
+use Gui\
+{Application, Components\Label};
+
+$gta_external = (new GtaExternal());
 $application = new Application([
 	"title" => "PHP GTA External",
 	"width" => 300,

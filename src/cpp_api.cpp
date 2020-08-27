@@ -57,6 +57,29 @@ uint64_t get_module_base(int32_t process_id, const char* module)
 	return 0;
 }
 
+uint64_t get_module_size(int32_t process_id, const char* module)
+{
+	const HANDLE moduleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, process_id);
+	if (moduleSnapshot != INVALID_HANDLE_VALUE)
+	{
+		MODULEENTRY32 moduleEntry;
+		moduleEntry.dwSize = sizeof(MODULEENTRY32);
+		if (Module32First(moduleSnapshot, &moduleEntry))
+		{
+			do
+			{
+				if (strcmp(module, moduleEntry.szModule) == 0)
+				{
+					CloseHandle(moduleSnapshot);
+					return moduleEntry.modBaseSize;
+				}
+			} while (Module32Next(moduleSnapshot, &moduleEntry));
+		}
+		CloseHandle(moduleSnapshot);
+	}
+	return 0;
+}
+
 const char* get_module_path(int32_t process_id, const char* module)
 {
 	const HANDLE moduleSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, process_id);

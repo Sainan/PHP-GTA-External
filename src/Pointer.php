@@ -1,7 +1,5 @@
-<?php /** @noinspection PhpUndefinedMethodInspection */
+<?php
 namespace GtaExternal;
-
-require_once __DIR__."/cpp_api.php";
 
 class Pointer
 {
@@ -26,18 +24,32 @@ class Pointer
 
 	function readBinary(int $bytes) : string
 	{
-		global $cpp_api;
-		return join("", array_map("hex2bin", str_split($cpp_api->read_bytes($this->process_id, $this->address, $bytes), 2)));
+		return join("", array_map("hex2bin", str_split(CppInterface::read_bytes($this->process_id, $this->address, $bytes), 2)));
 	}
 
-	function readLong() : int
+	function read_int32() : int
+	{
+		return unpack("l", $this->readBinary(4))[1];
+	}
+
+	function read_uint32() : int
+	{
+		return unpack("V", $this->readBinary(4))[1];
+	}
+
+	function rip() : Pointer
+	{
+		return $this->add($this->read_int32())->add(4);
+	}
+
+	function read_uint64() : int
 	{
 		return unpack("Q", $this->readBinary(8))[1];
 	}
 
 	function dereference() : Pointer
 	{
-		return new Pointer($this->process_id, $this->readLong());
+		return new Pointer($this->process_id, $this->read_uint64());
 	}
 
 	function readFloat() : float
@@ -47,13 +59,11 @@ class Pointer
 
 	function writeByte(int $b) : void
 	{
-		global $cpp_api;
-		$cpp_api->write_bytes($this->process_id, $this->address, str_pad(dechex($b), 2, "0", STR_PAD_LEFT));
+		CppInterface::write_bytes($this->process_id, $this->address, str_pad(dechex($b), 2, "0", STR_PAD_LEFT));
 	}
 
 	function writeFloat(float $value) : void
 	{
-		global $cpp_api;
-		$cpp_api->write_bytes($this->process_id, $this->address, bin2hex(pack("f", $value)));
+		CppInterface::write_bytes($this->process_id, $this->address, bin2hex(pack("f", $value)));
 	}
 }
