@@ -70,8 +70,8 @@ class GtaExternal
 		return $this->getEditionOffset(0x24CD000, 0x24C8858, 0x24C8858)->dereference();
 	}
 
-	function getPlayerPed() : Pointer
+	function getPlayerPed() : PedPointer
 	{
-		return $this->getPedFactory()->add(8)->dereference();
+		return new PedPointer($this->base->process_id, $this->getPedFactory()->add(8)->dereference()->address);
 	}
 }

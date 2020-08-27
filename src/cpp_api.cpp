@@ -129,12 +129,12 @@ const char* read_bytes(int32_t process_id, uint64_t address, uint8_t bytes)
 void write_bytes(int32_t process_id, uint64_t address, const char* hex_data)
 {
 	const size_t bytes = strlen(hex_data) / 2;
-	auto buffer = (char*)malloc(bytes);
+	auto* const buffer = (char*)malloc(bytes);
 	for (size_t i = 0; i < bytes; i++)
 	{
-		buffer[i] = (char)std::strtoul(hex_data + (i * 2), (char**)&hex_data + (i * 2) + 1, 16);
+		buffer[i] = (char)std::strtoul(std::string(hex_data + (i * 2), 2).c_str(), nullptr, 16);
 	}
-	const HANDLE handle = OpenProcess(PROCESS_VM_WRITE, FALSE, process_id);
+	const HANDLE handle = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, process_id);
 	WriteProcessMemory(handle, (void*)address, buffer, bytes, nullptr);
 	free(buffer);
 	CloseHandle(handle);

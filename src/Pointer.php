@@ -57,13 +57,24 @@ class Pointer
 		return unpack("f", $this->readBinary(4))[1];
 	}
 
+	static function byteToHex(int $b)
+	{
+		return str_pad(dechex($b), 2, "0", STR_PAD_LEFT);
+	}
+
 	function writeByte(int $b) : void
 	{
-		CppInterface::write_bytes($this->process_id, $this->address, str_pad(dechex($b), 2, "0", STR_PAD_LEFT));
+		CppInterface::write_bytes($this->process_id, $this->address, self::byteToHex($b));
 	}
 
 	function writeFloat(float $value) : void
 	{
-		CppInterface::write_bytes($this->process_id, $this->address, bin2hex(pack("f", $value)));
+		$bin = pack("f", $value);
+		$hex = "";
+		foreach(str_split($bin) as $c)
+		{
+			$hex .= self::byteToHex(ord($c));
+		}
+		CppInterface::write_bytes($this->process_id, $this->address, $hex);
 	}
 }
