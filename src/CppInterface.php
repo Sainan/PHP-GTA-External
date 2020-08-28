@@ -4,6 +4,9 @@ use FFI;
 class CppInterface
 {
 	public static ?FFI $cpp_api;
+	public static int $buffer_size = 0;
+	public static int $buffer_address_start = 0;
+	public static int $buffer_address_end = 0;
 
 	public static function get_process_id(string $exe_file) : int
 	{
@@ -22,7 +25,9 @@ class CppInterface
 
 	public static function get_module_path(int $process_id, string $module) : string
 	{
-		return self::$cpp_api->get_module_path($process_id, $module);
+		$path = self::$cpp_api->get_module_path($process_id, $module);
+		self::$buffer_address_start += strlen($path) + 1;
+		return $path;
 	}
 
 
@@ -37,11 +42,6 @@ class CppInterface
 	}
 
 
-	public static function buffer_size() : int
-	{
-		return self::$cpp_api->buffer_size();
-	}
-
 	public static function buffer_read_byte(int $index) : int
 	{
 		return self::$cpp_api->buffer_read_byte($index);
@@ -49,17 +49,19 @@ class CppInterface
 
 	public static function buffer_write_byte(int $index, int $value) : void
 	{
+		self::$buffer_address_start = self::$buffer_address_end = 0;
 		self::$cpp_api->buffer_write_byte($index, $value);
 	}
 
 
-	public static function process_read_byte(Handle $handle, int $address) : int
-	{
-		return self::$cpp_api->process_read_byte($handle->handle, $address);
-	}
-
 	public static function process_read_bytes(Handle $handle, int $address, int $bytes) : void
 	{
+		if($bytes > self::$buffer_size)
+		{
+			$bytes = self::$buffer_size;
+		}
+		self::$buffer_address_start = $address;
+		self::$buffer_address_end = $address + $bytes;
 		self::$cpp_api->process_read_bytes($handle->handle, $address, $bytes);
 	}
 
@@ -73,3 +75,4 @@ $cwd = getcwd();
 chdir(__DIR__);
 CppInterface::$cpp_api = FFI::load("cpp_api.h");
 chdir($cwd);
+CppInterface::$buffer_size = CppInterface::$cpp_api->buffer_size();

@@ -13,6 +13,5 @@ extern uint16_t buffer_size();
 extern uint8_t buffer_read_byte(uint16_t index);
 extern void buffer_write_byte(uint16_t index, uint8_t value);
 
-extern uint8_t process_read_byte(uint64_t handle, uint64_t address);
 extern void process_read_bytes(uint64_t handle, uint64_t address, uint16_t bytes);
 extern void process_write_bytes(uint64_t handle, uint64_t address, uint16_t bytes);

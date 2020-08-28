@@ -130,12 +130,6 @@ void buffer_write_byte(uint16_t index, uint8_t value)
 	buffer[index] = (char)value;
 }
 
-uint8_t process_read_byte(uint64_t handle, uint64_t address)
-{
-	ReadProcessMemory((HANDLE)handle, (void*)address, buffer, 1, nullptr);
-	return (uint8_t)buffer[0];
-}
-
 void process_read_bytes(uint64_t handle, uint64_t address, uint16_t bytes)
 {
 	ReadProcessMemory((HANDLE)handle, (void*)address, buffer, bytes, nullptr);

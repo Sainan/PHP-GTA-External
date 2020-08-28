@@ -8,6 +8,11 @@ class Vector3Pointer extends Pointer
 		parent::__construct($handle, $address);
 	}
 
+	function bufferXYZ()
+	{
+		$this->ensureBuffer(12);
+	}
+
 	function readX() : float
 	{
 		return $this->readFloat();

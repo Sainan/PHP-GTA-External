@@ -21,22 +21,19 @@ class Pattern
 		$pattern_matches = 0;
 		$gta_end = $module->base->address + $module->size - 1;
 		$pointer = clone $module->base;
-		$buffer_i = $buffer_size = CppInterface::buffer_size();
-		while($pointer->address < $gta_end)
+		for(; $pointer->address < $gta_end; $pointer->address++)
 		{
-			if($buffer_i >= $buffer_size)
+			if(!$pointer->isBuffered())
 			{
-				CppInterface::process_read_bytes($pointer->handle, $pointer->address, $buffer_size);
-				$buffer_i = 0;
+				$pointer->buffer($gta_end - $pointer->address);
 			}
-			if(CppInterface::buffer_read_byte($buffer_i) == $this->pattern_arr[$pattern_matches])
+			if($pointer->readByte() == $this->pattern_arr[$pattern_matches])
 			{
 				$pattern_matches++;
 				while ($pattern_matches < $this->pattern_size && $this->pattern_arr[$pattern_matches] == -1)
 				{
 					$pattern_matches++;
 					$pointer->address++;
-					$buffer_i++;
 				}
 				if($pattern_matches >= $this->pattern_size)
 				{
@@ -47,8 +44,6 @@ class Pattern
 			{
 				$pattern_matches = 0;
 			}
-			$pointer->address++;
-			$buffer_i++;
 		}
 		return null;
 	}

@@ -31,6 +31,7 @@ $application->on("start", function() use ($gta_external, $application)
 		$ped = $gta_external->getPlayerPed();
 
 		$pos = $ped->getNavigation()->getPosition();
+		$pos->bufferXYZ();
 		$label_x->setText("X: ".$pos->readX());
 		$label_y->setText("Y: ".$pos->readY());
 		$label_z->setText("Z: ".$pos->readZ());

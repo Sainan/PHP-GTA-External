@@ -33,11 +33,31 @@ class Pointer
 		return new Pointer($this->handle, $this->address - $offset);
 	}
 
-	function readBinary(int $bytes) : string
+	function isBuffered(int $min_bytes = 1) : bool
+	{
+		return CppInterface::$buffer_address_start <= $this->address && $this->address + $min_bytes <= CppInterface::$buffer_address_end;
+	}
+
+	function buffer(int $bytes) : void
 	{
 		CppInterface::process_read_bytes($this->handle, $this->address, $bytes);
+	}
+
+	function ensureBuffer(int $bytes) : void
+	{
+		if(!$this->isBuffered($bytes))
+		{
+			$this->buffer($bytes);
+		}
+	}
+
+	function readBinary(int $bytes) : string
+	{
+		$this->ensureBuffer($bytes);
 		$bin_str = "";
-		for($i = 0; $i < $bytes; $i++)
+		$i = $this->address - CppInterface::$buffer_address_start;
+		$end = $i + $bytes;
+		for(; $i < $end; $i++)
 		{
 			$bin_str .= chr(CppInterface::buffer_read_byte($i));
 		}
@@ -46,7 +66,8 @@ class Pointer
 
 	function readByte() : int
 	{
-		return CppInterface::process_read_byte($this->handle, $this->address);
+		$this->ensureBuffer(1);
+		return CppInterface::buffer_read_byte($this->address - CppInterface::$buffer_address_start);
 	}
 
 	function read_int32() : int
