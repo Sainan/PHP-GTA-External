@@ -1,35 +1,39 @@
 <?php
 namespace GtaExternal;
-
+use GtaExternal\Pointer\Pointer;
 class Pattern
 {
-	public string $pattern;
+	public array $pattern_arr;
+	public int $pattern_size;
 
 	function __construct(string $pattern)
 	{
-		$this->pattern = strtolower($pattern);
+		$this->pattern_arr = explode(" ", $pattern);
+		$this->pattern_size = count($this->pattern_arr);
+		for($i = 0; $i < $this->pattern_size; $i++)
+		{
+			$this->pattern_arr[$i] = $this->pattern_arr[$i] == "?" ? -1 : hexdec($this->pattern_arr[$i]);
+		}
 	}
 
 	function scan(Module $module) : ?Pointer
 	{
-		$pattern_arr = explode(" ", $this->pattern);
-		$pattern_size = count($pattern_arr);
 		$pattern_matches = 0;
-
 		$gta_end = $module->base->address + $module->size - 1;
-		for($addr = $module->base->address; $addr < $gta_end; $addr++)
+		$pointer = clone $module->base;
+		for(; $pointer->address < $gta_end; $pointer->address++)
 		{
-			if(CppInterface::read_bytes($module->base->process_id, $addr, 1) == $pattern_arr[$pattern_matches])
+			if($pointer->readByte() == $this->pattern_arr[$pattern_matches])
 			{
 				$pattern_matches++;
-				while ($pattern_matches < $pattern_size && $pattern_arr[$pattern_matches] == "?")
+				while ($pattern_matches < $this->pattern_size && $this->pattern_arr[$pattern_matches] == -1)
 				{
 					$pattern_matches++;
-					$addr++;
+					$pointer->address++;
 				}
-				if($pattern_matches >= $pattern_size)
+				if($pattern_matches >= $this->pattern_size)
 				{
-					return new Pointer($module->base->process_id, ($addr - $pattern_size) + 1);
+					return $pointer->subtract($this->pattern_size - 1);
 				}
 			}
 			else

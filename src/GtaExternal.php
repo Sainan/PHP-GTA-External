@@ -1,5 +1,7 @@
 <?php
 namespace GtaExternal;
+use GtaExternal\Pointer\
+{PedPointer, Pointer};
 
 const GTA_MODULE = "GTA5.exe";
 
@@ -9,22 +11,23 @@ const EDITION_EPIC_GAMES = 2;
 
 class GtaExternal
 {
+	public int $process_id;
 	public Pointer $base;
 	public int $edition;
 
 	function __construct()
 	{
-		$process_id = CppInterface::get_process_id(GTA_MODULE);
-		if($process_id == -1)
+		$this->process_id = CppInterface::get_process_id(GTA_MODULE);
+		if($this->process_id == -1)
 		{
 			die("GTA isn't open?\n");
 		}
-		$this->base = new Pointer($process_id, CppInterface::get_module_base($process_id, GTA_MODULE));
-		if(CppInterface::get_module_base($process_id, "steam_api64.dll") != 0)
+		$this->base = new Pointer(CppInterface::open_process($this->process_id), CppInterface::get_module_base($this->process_id, GTA_MODULE));
+		if(CppInterface::get_module_base($this->process_id, "steam_api64.dll") != 0)
 		{
 			$this->edition = EDITION_STEAM;
 		}
-		else if(is_dir(dirname(CppInterface::get_module_path($process_id, GTA_MODULE))."/.egstore/"))
+		else if(is_dir(dirname(CppInterface::get_module_path($this->process_id, GTA_MODULE))."/.egstore/"))
 		{
 			$this->edition = EDITION_EPIC_GAMES;
 		}
@@ -49,7 +52,7 @@ class GtaExternal
 
 	function getModule(string $module = GTA_MODULE) : Module
 	{
-		return new Module($this->base, $module);
+		return new Module($this->process_id, $this->base, $module);
 	}
 
 	function getEditionOffset(int $steam_offset, int $sc_offset, int $egs_offset) : Pointer
@@ -72,6 +75,6 @@ class GtaExternal
 
 	function getPlayerPed() : PedPointer
 	{
-		return new PedPointer($this->base->process_id, $this->getPedFactory()->add(8)->dereference()->address);
+		return new PedPointer($this->base->handle, $this->getPedFactory()->add(8)->dereference()->address);
 	}
 }

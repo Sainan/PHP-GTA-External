@@ -1,3 +1,2 @@
 mkdir bin
-g++ -shared -static -s -o3 -o bin/cpp_api.dll src/cpp_api.cpp
-pause
+g++ -shared -s -Ofast -march=native -o bin/cpp_api.dll src/cpp_api.cpp

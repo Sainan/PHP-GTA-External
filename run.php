@@ -31,9 +31,9 @@ $application->on("start", function() use ($gta_external, $application)
 		$ped = $gta_external->getPlayerPed();
 
 		$pos = $ped->getNavigation()->getPosition();
-		$label_x->setText("X: ".$pos->x);
-		$label_y->setText("Y: ".$pos->y);
-		$label_z->setText("Z: ".$pos->z);
+		$label_x->setText("X: ".$pos->readX());
+		$label_y->setText("Y: ".$pos->readY());
+		$label_z->setText("Z: ".$pos->readZ());
 
 		$label_health->setText("Health: ".$ped->getHealth());
 		$label_armor->setText("Armor: ".$ped->getArmor());

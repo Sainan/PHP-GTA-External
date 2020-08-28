@@ -8,8 +8,8 @@
 #define extern og_extern "C" __declspec(dllexport)
 #include "cpp_api.h"
 
-static char return_buffer[260];
-static_assert(sizeof(return_buffer) >= MAX_PATH, "return buffer can't hold a path");
+static char buffer[260];
+static_assert(sizeof(buffer) >= MAX_PATH, "buffer can't hold a path");
 
 int32_t get_process_id(const char* exe_file)
 {
@@ -94,8 +94,8 @@ const char* get_module_path(int32_t process_id, const char* module)
 				if (strcmp(module, moduleEntry.szModule) == 0)
 				{
 					CloseHandle(moduleSnapshot);
-					strncpy_s(return_buffer, moduleEntry.szExePath, sizeof(return_buffer));
-					return return_buffer;
+					strncpy_s(buffer, moduleEntry.szExePath, MAX_PATH);
+					return buffer;
 				}
 			} while (Module32Next(moduleSnapshot, &moduleEntry));
 		}
@@ -104,38 +104,40 @@ const char* get_module_path(int32_t process_id, const char* module)
 	return "";
 }
 
-const char* read_bytes(int32_t process_id, uint64_t address, uint8_t bytes)
+
+uint64_t open_process(int32_t process_id)
 {
-	constexpr uint8_t limit = (sizeof(return_buffer) / 2) - 1;
-	if (bytes > limit)
-	{
-		std::cerr << "Warning: read_bytes limit surpassed, result will be shorter than requested!";
-		bytes = limit;
-	}
-	const HANDLE handle = OpenProcess(PROCESS_VM_READ, FALSE, process_id);
-	auto* const buffer = (char*)malloc(bytes);
-	std::stringstream hex_str;
-	ReadProcessMemory(handle, (void*)address, buffer, bytes, nullptr);
-	CloseHandle(handle);
-	for (uint8_t i = 0; i < bytes; i++)
-	{
-		hex_str << std::setw(2) << std::setfill('0') << std::hex << (0xFF & buffer[i]);
-	}
-	free(buffer);
-	strncpy_s(return_buffer, hex_str.str().c_str(), sizeof(return_buffer));
-	return return_buffer;
+	return (uint64_t)OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, process_id);
 }
 
-void write_bytes(int32_t process_id, uint64_t address, const char* hex_data)
+void close_handle(uint64_t handle)
 {
-	const size_t bytes = strlen(hex_data) / 2;
-	auto* const buffer = (char*)malloc(bytes);
-	for (size_t i = 0; i < bytes; i++)
-	{
-		buffer[i] = (char)std::strtoul(std::string(hex_data + (i * 2), 2).c_str(), nullptr, 16);
-	}
-	const HANDLE handle = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, process_id);
-	WriteProcessMemory(handle, (void*)address, buffer, bytes, nullptr);
-	free(buffer);
-	CloseHandle(handle);
+	CloseHandle((HANDLE)handle);
+}
+
+
+uint8_t buffer_read_byte(uint16_t index)
+{
+	return (uint8_t)buffer[index];
+}
+
+void buffer_write_byte(uint16_t index, uint8_t value)
+{
+	buffer[index] = (char)value;
+}
+
+uint8_t process_read_byte(uint64_t handle, uint64_t address)
+{
+	ReadProcessMemory((HANDLE)handle, (void*)address, buffer, 1, nullptr);
+	return (uint8_t)buffer[0];
+}
+
+void process_read_bytes(uint64_t handle, uint64_t address, uint16_t bytes)
+{
+	ReadProcessMemory((HANDLE)handle, (void*)address, buffer, bytes, nullptr);
+}
+
+void process_write_bytes(uint64_t handle, uint64_t address, uint16_t bytes)
+{
+	WriteProcessMemory((HANDLE)handle, (void*)address, buffer, bytes, nullptr);
 }

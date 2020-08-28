@@ -1,4 +1,8 @@
 <?php
+echo "Compiling with reasonable options...\n";
+passthru("g++ -shared -s -Ofast -o bin/cpp_api.dll src/cpp_api.cpp");
+
+echo "Packaging...\n";
 if(is_file("PHP-GTA-External.zip"))
 {
 	unlink("PHP-GTA-External.zip");
@@ -44,3 +48,6 @@ recursively_add_dir("bin");
 recursively_add_dir("src");
 recursively_add_dir("vendor");
 $zip->close();
+
+echo "Recompiling with unreasonable options...\n";
+passthru("g++ -shared -s -Ofast -march=native -o bin/cpp_api.dll src/cpp_api.cpp");
