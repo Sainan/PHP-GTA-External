@@ -42,4 +42,9 @@ $application->on("start", function() use ($gta_external, $application)
 		$label_armor->setText("Armor: ".$ped->getArmor());
 	});
 });
+$application->setVerboseLevel(1);
+sapi_windows_set_ctrl_handler(function() use ($application)
+{
+	$application->terminate();
+});
 $application->run();
