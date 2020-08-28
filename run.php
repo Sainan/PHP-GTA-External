@@ -3,10 +3,8 @@ require "vendor/autoload.php";
 use GtaExternal\GtaExternal;
 use Gui\
 {Application, Components\Button, Components\Label};
-
 $gta_external = (new GtaExternal());
-$gta_external->ensurePedFactoryPtr();
-
+$gta_external->getPedFactory();
 $application = new Application([
 	"title" => "PHP GTA External",
 	"width" => 300,
@@ -14,7 +12,7 @@ $application = new Application([
 ]);
 $application->on("start", function() use ($gta_external, $application)
 {
-	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta_external->getEditionName()." Edition");
+	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta_external->getEditionName()." Edition, Online ".$gta_external->getOnlineVersion());
 
 	$label_x = (new Label())->setLeft(20)->setTop(40);
 	$label_y = (new Label())->setLeft(20)->setTop(60);

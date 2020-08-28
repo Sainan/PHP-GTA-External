@@ -95,6 +95,16 @@ class Pointer
 		return new Pointer($this->handle, $this->read_uint64());
 	}
 
+	function readString() : string
+	{
+		$len = 0;
+		while($this->add($len)->readByte() != 0)
+		{
+			$len++;
+		}
+		return $this->readBinary($len);
+	}
+
 	function readFloat() : float
 	{
 		return unpack("f", $this->readBinary(4))[1];
