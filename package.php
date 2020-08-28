@@ -24,6 +24,7 @@ foreach(["run.php", "start.bat"] as $file)
 	$zip->addFile($file, $file);
 }
 $zip->addFile($php_dir."\\php.exe", "php/php.exe");
+$zip->addFile($php_dir."\\php".PHP_MAJOR_VERSION.".dll", "php/php".PHP_MAJOR_VERSION.".dll");
 $zip->addFile($php_dir."\\ext\\php_ffi.dll", "php/ext/php_ffi.dll");
 function recursively_add_dir($dir)
 {
