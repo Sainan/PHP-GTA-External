@@ -5,6 +5,8 @@ use Gui\
 {Application, Components\Button, Components\Label};
 
 $gta_external = (new GtaExternal());
+$gta_external->ensurePedFactoryPtr();
+
 $application = new Application([
 	"title" => "PHP GTA External",
 	"width" => 300,

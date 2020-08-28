@@ -5,15 +5,11 @@ use GtaExternal\Pointer\
 
 const GTA_MODULE = "GTA5.exe";
 
-const EDITION_STEAM = 0;
-const EDITION_SOCIAL_CLUB = 1;
-const EDITION_EPIC_GAMES = 2;
-
 class GtaExternal
 {
 	public int $process_id;
 	public Pointer $base;
-	public int $edition;
+	public ?Pointer $ped_factory_ptr = null;
 
 	function __construct()
 	{
@@ -23,29 +19,17 @@ class GtaExternal
 			die("GTA isn't open?\n");
 		}
 		$this->base = new Pointer(CppInterface::open_process($this->process_id), CppInterface::get_module_base($this->process_id, GTA_MODULE));
-		if(CppInterface::get_module_base($this->process_id, "steam_api64.dll") != 0)
-		{
-			$this->edition = EDITION_STEAM;
-		}
-		else if(is_dir(dirname(CppInterface::get_module_path($this->process_id, GTA_MODULE))."/.egstore/"))
-		{
-			$this->edition = EDITION_EPIC_GAMES;
-		}
-		else
-		{
-			$this->edition = EDITION_SOCIAL_CLUB;
-		}
 	}
 
 	function getEditionName() : string
 	{
-		switch($this->edition)
+		if(CppInterface::get_module_base($this->process_id, "steam_api64.dll") != 0)
 		{
-			case EDITION_STEAM:
-				return "Steam";
-
-			case EDITION_EPIC_GAMES:
-				return "Epic Games";
+			return "Steam";
+		}
+		if(is_dir(dirname(CppInterface::get_module_path($this->process_id, GTA_MODULE))."/.egstore/"))
+		{
+			return "Epic Games";
 		}
 		return "Social Club";
 	}
@@ -55,22 +39,26 @@ class GtaExternal
 		return new Module($this->process_id, $this->base, $module);
 	}
 
-	function getEditionOffset(int $steam_offset, int $sc_offset, int $egs_offset) : Pointer
+	function ensurePedFactoryPtr() : void
 	{
-		switch($this->edition)
+		if(!$this->ped_factory_ptr instanceof Pointer)
 		{
-			case EDITION_STEAM:
-				return $this->base->add($steam_offset);
-
-			case EDITION_EPIC_GAMES:
-				return $this->base->add($egs_offset);
+			echo "Looking for PedFactory... ";
+			$module = $this->getModule();
+			$this->ped_factory_ptr = (new Pattern("48 8B 05 ? ? ? ? 48 8B 48 08 48 85 C9 74 52 8B 81"))->scan($module);
+			if(!$this->ped_factory_ptr instanceof Pointer)
+			{
+				die("Pattern not found. :(\n");
+			}
+			$this->ped_factory_ptr = $this->ped_factory_ptr->add(3)->rip();
+			echo "Found at ".GTA_MODULE."+".dechex($module->getOffsetTo($this->ped_factory_ptr))." ({$this->ped_factory_ptr})\n";
 		}
-		return $this->base->add($sc_offset);
 	}
 
 	function getPedFactory() : Pointer
 	{
-		return $this->getEditionOffset(0x24CD000, 0x24C8858, 0x24C8858)->dereference();
+		$this->ensurePedFactoryPtr();
+		return $this->ped_factory_ptr->dereference();
 	}
 
 	function getPlayerPed() : PedPointer
