@@ -21,11 +21,11 @@ if(count(explode("\n", $where)) > 1)
 $php_dir = dirname($where);
 foreach(["run.php", "start.bat"] as $file)
 {
-	$zip->addFile($file, $file);
+	$zip->addFile($file, "PHP-GTA-External/".$file);
 }
-$zip->addFile($php_dir."\\php.exe", "php/php.exe");
-$zip->addFile($php_dir."\\php".PHP_MAJOR_VERSION.".dll", "php/php".PHP_MAJOR_VERSION.".dll");
-$zip->addFile($php_dir."\\ext\\php_ffi.dll", "php/ext/php_ffi.dll");
+$zip->addFile($php_dir."\\php.exe", "PHP-GTA-External/php/php.exe");
+$zip->addFile($php_dir."\\php".PHP_MAJOR_VERSION.".dll", "PHP-GTA-External/php/php".PHP_MAJOR_VERSION.".dll");
+$zip->addFile($php_dir."\\ext\\php_ffi.dll", "PHP-GTA-External/php/ext/php_ffi.dll");
 function recursively_add_dir($dir)
 {
 	global $zip;
@@ -40,7 +40,7 @@ function recursively_add_dir($dir)
 			}
 			else
 			{
-				$zip->addFile($path, $path);
+				$zip->addFile($path, "PHP-GTA-External/".$path);
 			}
 		}
 	}
