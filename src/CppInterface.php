@@ -37,6 +37,11 @@ class CppInterface
 	}
 
 
+	public static function buffer_size() : int
+	{
+		return self::$cpp_api->buffer_size();
+	}
+
 	public static function buffer_read_byte(int $index) : int
 	{
 		return self::$cpp_api->buffer_read_byte($index);

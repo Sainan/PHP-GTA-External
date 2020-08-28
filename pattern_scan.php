@@ -5,7 +5,7 @@ use GtaExternal\
 use const GtaExternal\GTA_MODULE;
 
 $gta_external = (new GtaExternal());
-echo "Detected ".$gta_external->getEditionName()." Edition\n\nNote: This pattern scanning is relatively slow.\n\n";
+echo "Detected ".$gta_external->getEditionName()." Edition\n\n";
 
 $module = $gta_external->getModule();
 

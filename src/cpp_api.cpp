@@ -8,8 +8,7 @@
 #define extern og_extern "C" __declspec(dllexport)
 #include "cpp_api.h"
 
-static char buffer[260];
-static_assert(sizeof(buffer) >= MAX_PATH, "buffer can't hold a path");
+static char buffer[0xffff];
 
 int32_t get_process_id(const char* exe_file)
 {
@@ -115,6 +114,11 @@ void close_handle(uint64_t handle)
 	CloseHandle((HANDLE)handle);
 }
 
+
+uint16_t buffer_size()
+{
+	return sizeof(buffer);
+}
 
 uint8_t buffer_read_byte(uint16_t index)
 {
