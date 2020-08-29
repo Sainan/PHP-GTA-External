@@ -1,24 +1,24 @@
 <?php
 require "vendor/autoload.php";
-use GtaExternal\GtaExternal;
+use V\GTA;
 use Gui\
 {Application, Components\Button, Components\InputNumber, Components\Label, Components\Window};
-$gta_external = (new GtaExternal());
+$gta = (new GTA());
 $application = new Application([
-	"title" => "PHP GTA External",
+	"title" => "PHP V",
 	"top" => 100,
 	"left" => 150,
 	"width" => 300,
 	"height" => 90,
 ]);
-$application->on("start", function() use ($gta_external, $application)
+$application->on("start", function() use ($gta, $application)
 {
-	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta_external->getEditionName()." Edition, Online ".$gta_external->getOnlineVersion());
+	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getEditionName()." Edition, Online ".$gta->getOnlineVersion());
 
-	(new Button())->setLeft(20)->setTop(40)->setValue("Self")->on("click", function() use ($gta_external, $application)
+	(new Button())->setLeft(20)->setTop(40)->setValue("Self")->on("click", function() use ($gta, $application)
 	{
 		$window = new Window([
-			"title" => "Self",
+			"title" => "PHP V: Self",
 			"top" => 100 + 90 + 30,
 			"left" => 150,
 			"width" => 300,
@@ -31,15 +31,15 @@ $application->on("start", function() use ($gta_external, $application)
 
 		$label_health = (new Label([], $window))->setLeft(160)->setTop(20);
 		$label_armor = (new Label([], $window))->setLeft(160)->setTop(40);
-		(new Button([], $window))->setLeft(160)->setTop(60)->setValue("Refill")->on("click", function() use ($gta_external)
+		(new Button([], $window))->setLeft(160)->setTop(60)->setValue("Refill")->on("click", function() use ($gta)
 		{
-			$gta_external->getPlayerPed()->setHealth(200.0)
-						 ->setArmor(100.0);
+			$gta->getPlayerPed()->setHealth(200.0)
+				->setArmor(100.0);
 		});
 
-		$timer = $application->getLoop()->addPeriodicTimer(1 / 24, function() use ($gta_external, $label_x, $label_y, $label_z, $label_health, $label_armor)
+		$timer = $application->getLoop()->addPeriodicTimer(1 / 24, function() use ($gta, $label_x, $label_y, $label_z, $label_health, $label_armor)
 		{
-			$ped = $gta_external->getPlayerPed();
+			$ped = $gta->getPlayerPed();
 
 			$pos = $ped->getNavigation()->getPosition();
 			$pos->bufferXYZ();
@@ -56,10 +56,10 @@ $application->on("start", function() use ($gta_external, $application)
 		});
 	});
 
-	(new Button())->setLeft(100)->setTop(40)->setValue("Globals")->on("click", function() use ($gta_external, $application)
+	(new Button())->setLeft(100)->setTop(40)->setValue("Globals")->on("click", function() use ($gta, $application)
 	{
 		$window = new Window([
-			"title" => "Globals",
+			"title" => "PHP V: Globals",
 			"top" => 100,
 			"left" => 150 + 300,
 			"width" => 250,
@@ -101,7 +101,7 @@ $application->on("start", function() use ($gta_external, $application)
 		$input_int32 = (new InputNumber(false, [], $window))->setLeft(20)->setTop(50)->setWidth(100)->setMin(pow(2, 31) * -1)->setMax(pow(2, 31) - 1);
 		$input_float = (new InputNumber(true, [], $window))->setLeft(130)->setTop(50)->setWidth(100)->setMin(0.0)->setMax(PHP_FLOAT_MAX);
 
-		$timer = $application->getLoop()->addPeriodicTimer(1 / 24, function() use ($gta_external, &$mode, &$global, &$global_has_changed, $input_global, &$write_as_int, $input_int32, $input_float)
+		$timer = $application->getLoop()->addPeriodicTimer(1 / 24, function() use ($gta, &$mode, &$global, &$global_has_changed, $input_global, &$write_as_int, $input_int32, $input_float)
 		{
 			if($global_has_changed > 1)
 			{
@@ -116,7 +116,7 @@ $application->on("start", function() use ($gta_external, $application)
 						$global = $input_global->getValue() ?? 0;
 						$global_has_changed = 0;
 					}
-					$script_global = $gta_external->getScriptGlobal($global);
+					$script_global = $gta->getScriptGlobal($global);
 					$input_int32->setValue($script_global->readInt32());
 					$input_float->setValue($script_global->readFloat());
 					break;
@@ -127,7 +127,7 @@ $application->on("start", function() use ($gta_external, $application)
 						$input_global->setValue($global);
 						$global_has_changed = 0;
 					}
-					$script_global = $gta_external->getScriptGlobal($global);
+					$script_global = $gta->getScriptGlobal($global);
 					$script_global->writeInt32($input_int32->getValue());
 					$input_float->setValue($script_global->readFloat());
 					break;
@@ -138,7 +138,7 @@ $application->on("start", function() use ($gta_external, $application)
 						$input_global->setValue($global);
 						$global_has_changed = 0;
 					}
-					$script_global = $gta_external->getScriptGlobal($global);
+					$script_global = $gta->getScriptGlobal($global);
 					$script_global->writeFloat($input_float->getValue());
 					$input_int32->setValue($script_global->readInt32());
 					break;

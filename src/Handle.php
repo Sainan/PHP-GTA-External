@@ -1,5 +1,5 @@
 <?php
-namespace GtaExternal;
+namespace V;
 class Handle
 {
 	public int $handle;

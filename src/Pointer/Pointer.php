@@ -1,6 +1,6 @@
 <?php
-namespace GtaExternal\Pointer;
-use GtaExternal\
+namespace V\Pointer;
+use V\
 {CppInterface, Handle};
 class Pointer
 {

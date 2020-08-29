@@ -1,13 +1,13 @@
 <?php
-namespace GtaExternal;
-use GtaExternal\Pointer\
+namespace V;
+use V\Pointer\
 {PedPointer, Pointer};
 
 const GTA_MODULE = "GTA5.exe";
 
 const PATTERN_SCAN_RESULTS_CACHE_JSON_PATH = __DIR__."/../pattern_scan_results_cache.json";
 
-class GtaExternal
+class GTA
 {
 	public int $process_id;
 	public Pointer $base;
@@ -19,7 +19,7 @@ class GtaExternal
 		$this->process_id = CppInterface::get_process_id(GTA_MODULE);
 		if($this->process_id == -1)
 		{
-			die("GTA isn't open?\n");
+			die("GTA V isn't open?\n");
 		}
 		$this->base = new Pointer(CppInterface::open_process($this->process_id), CppInterface::get_module_base($this->process_id, GTA_MODULE));
 		$online_version = $this->getOnlineVersion();

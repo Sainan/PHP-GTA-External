@@ -3,12 +3,12 @@ echo "Compiling with reasonable options...\n";
 passthru("g++ -shared -s -Ofast -o bin/cpp_api.dll src/cpp_api.cpp");
 
 echo "Packaging...\n";
-if(is_file("PHP-GTA-External.zip"))
+if(is_file("PHP-V.zip"))
 {
-	unlink("PHP-GTA-External.zip");
+	unlink("PHP-V.zip");
 }
 $zip = new ZipArchive();
-$zip->open("PHP-GTA-External.zip", ZipArchive::CREATE + ZipArchive::EXCL + ZipArchive::CHECKCONS) or die("Failed to create zip.\n");
+$zip->open("PHP-V.zip", ZipArchive::CREATE + ZipArchive::EXCL + ZipArchive::CHECKCONS) or die("Failed to create zip.\n");
 $where = trim(shell_exec("where php"));
 if(empty($where))
 {
@@ -21,11 +21,11 @@ if(count(explode("\n", $where)) > 1)
 $php_dir = dirname($where);
 foreach(["run.php", "start.bat"] as $file)
 {
-	$zip->addFile($file, "PHP-GTA-External/".$file);
+	$zip->addFile($file, "PHP-V/".$file);
 }
-$zip->addFile($php_dir."\\php.exe", "PHP-GTA-External/php/php.exe");
-$zip->addFile($php_dir."\\php".PHP_MAJOR_VERSION.".dll", "PHP-GTA-External/php/php".PHP_MAJOR_VERSION.".dll");
-$zip->addFile($php_dir."\\ext\\php_ffi.dll", "PHP-GTA-External/php/ext/php_ffi.dll");
+$zip->addFile($php_dir."\\php.exe", "PHP-V/php/php.exe");
+$zip->addFile($php_dir."\\php".PHP_MAJOR_VERSION.".dll", "PHP-V/php/php".PHP_MAJOR_VERSION.".dll");
+$zip->addFile($php_dir."\\ext\\php_ffi.dll", "PHP-V/php/ext/php_ffi.dll");
 function recursively_add_dir($dir)
 {
 	global $zip;
@@ -40,7 +40,7 @@ function recursively_add_dir($dir)
 			}
 			else
 			{
-				$zip->addFile($path, "PHP-GTA-External/".$path);
+				$zip->addFile($path, "PHP-V/".$path);
 			}
 		}
 	}

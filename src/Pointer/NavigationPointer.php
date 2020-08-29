@@ -1,6 +1,6 @@
 <?php
-namespace GtaExternal\Pointer;
-use GtaExternal\Handle;
+namespace V\Pointer;
+use V\Handle;
 class NavigationPointer extends Pointer
 {
 	function __construct(Handle $handle, int $address)

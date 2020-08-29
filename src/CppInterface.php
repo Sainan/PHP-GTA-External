@@ -1,5 +1,5 @@
 <?php /** @noinspection PhpUndefinedMethodInspection */
-namespace GtaExternal;
+namespace V;
 use FFI;
 class CppInterface
 {

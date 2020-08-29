@@ -1,6 +1,6 @@
 <?php
-namespace GtaExternal;
-use GtaExternal\Pointer\Pointer;
+namespace V;
+use V\Pointer\Pointer;
 class Module
 {
 	public int $process_id;

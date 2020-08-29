@@ -1,12 +1,14 @@
-# PHP GTA External
+# PHP V
 
-A proof-of-concept external trainer/mod menu for GTA V written in PHP using FFI to interface with a custom C++ DLL.
+A proof-of-concept external mod menu for GTA V written in PHP using FFI to interface with a custom C++ DLL to read & write process memory and [php-gui](https://github.com/gabrielrcouto/php-gui).
+
+![Screenshot](screenshot.png)
 
 ## Using it
 
 ### The easy way
 
-1. Download `PHP-GTA-External.zip` from [the latest release](https://github.com/Sainan/PHP-GTA-External/releases).
+1. Download `PHP-V.zip` from [the latest release](https://github.com/Sainan/PHP-V/releases).
 2. Extract the zip.
 3. Double-click `start.bat`.
 
@@ -17,7 +19,3 @@ A proof-of-concept external trainer/mod menu for GTA V written in PHP using FFI 
 3. Compile `src/cpp_api.cpp` to create a `bin/cpp_api.dll`. If you have MinGW-W64, you can use `compile-dll-with-g++.bat`.
 4. `composer install`.
 5. `php -d extension=ffi run.php`.
-
-## Screenshot
-
-![Screenshot](screenshot.png)

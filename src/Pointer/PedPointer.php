@@ -1,6 +1,6 @@
 <?php
-namespace GtaExternal\Pointer;
-use GtaExternal\Handle;
+namespace V\Pointer;
+use V\Handle;
 
 const OFFSET_PED_HEALTH = 0x0280;
 const OFFSET_PED_ARMOR = 0x14E0;
