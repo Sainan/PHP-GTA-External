@@ -10,6 +10,7 @@ $application = new Application([
 	"left" => 150,
 	"width" => 300,
 	"height" => 90,
+	"icon" => __DIR__."\\purple-v.ico",
 ]);
 $application->on("start", function() use ($gta, $application)
 {
@@ -23,6 +24,7 @@ $application->on("start", function() use ($gta, $application)
 			"left" => 150,
 			"width" => 300,
 			"height" => 110,
+			"icon" => __DIR__."\\purple-v.ico",
 		]);
 
 		$label_x = (new Label([], $window))->setLeft(20)->setTop(20)->setText("Looking for Ped Factory...");
@@ -64,6 +66,7 @@ $application->on("start", function() use ($gta, $application)
 			"left" => 150 + 300,
 			"width" => 250,
 			"height" => 90,
+			"icon" => __DIR__."\\purple-v.ico"
 		]);
 
 		$mode = 0;

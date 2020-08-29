@@ -19,7 +19,7 @@ if(count(explode("\n", $where)) > 1)
 	die("Multiple instances of PHP found.\n");
 }
 $php_dir = dirname($where);
-foreach(["run.php", "start.bat"] as $file)
+foreach(["start.bat", "run.php", "purple-v.ico"] as $file)
 {
 	$zip->addFile($file, "PHP-V/".$file);
 }
