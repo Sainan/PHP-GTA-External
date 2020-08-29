@@ -92,10 +92,12 @@ class GTA
 
 	function getOnlineVersion() : string
 	{
-		return $this->getPatternScanResult("Online Version", "4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8", function(Pointer $pointer) : Pointer
+		$pointer = $this->getPatternScanResult("Online Version", "4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8", function(Pointer $pointer) : Pointer
 		{
 			return $pointer->add(3)->rip();
-		})->readString();
+		});
+		$pointer->ensureBuffer(5);
+		return $pointer->readString();
 	}
 
 	function getPedFactory() : Pointer
