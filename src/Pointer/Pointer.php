@@ -70,29 +70,29 @@ class Pointer
 		return CppInterface::buffer_read_byte($this->address - CppInterface::$buffer_address_start);
 	}
 
-	function read_int32() : int
+	function readInt32() : int
 	{
 		return unpack("l", $this->readBinary(4))[1];
 	}
 
-	function read_uint32() : int
+	function readUInt32() : int
 	{
 		return unpack("V", $this->readBinary(4))[1];
 	}
 
 	function rip() : Pointer
 	{
-		return $this->add($this->read_int32())->add(4);
+		return $this->add($this->readInt32())->add(4);
 	}
 
-	function read_uint64() : int
+	function readUInt64() : int
 	{
 		return unpack("Q", $this->readBinary(8))[1];
 	}
 
 	function dereference() : Pointer
 	{
-		return new Pointer($this->handle, $this->read_uint64());
+		return new Pointer($this->handle, $this->readUInt64());
 	}
 
 	function readString() : string
@@ -116,13 +116,23 @@ class Pointer
 		CppInterface::process_write_bytes($this->handle, $this->address, 1);
 	}
 
-	function writeFloat(float $value) : void
+	function writeBinary(string $bin) : void
 	{
 		$i = 0;
-		foreach(str_split(pack("f", $value)) as $c)
+		foreach(str_split($bin) as $c)
 		{
 			CppInterface::buffer_write_byte($i++, ord($c));
 		}
-		CppInterface::process_write_bytes($this->handle, $this->address, 4);
+		CppInterface::process_write_bytes($this->handle, $this->address, $i);
+	}
+
+	function writeInt32(int $value) : void
+	{
+		$this->writeBinary(pack("l", $value));
+	}
+
+	function writeFloat(float $value) : void
+	{
+		$this->writeBinary(pack("f", $value));
 	}
 }

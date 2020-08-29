@@ -110,4 +110,12 @@ class GtaExternal
 	{
 		return new PedPointer($this->base->handle, $this->getPedFactory()->add(8)->dereference()->address);
 	}
+
+	function getScriptGlobal(int $global) : Pointer
+	{
+		return $this->getPatternScanResult("Script Globals", "48 8D 15 ? ? ? ? 4C 8B C0 E8 ? ? ? ? 48 85 FF 48 89 1D", function(Pointer $pointer) : Pointer
+		{
+			return $pointer->add(3)->rip();
+		})->add((($global >> 0x12) & 0x3F) * 8)->dereference()->add(($global & 0x3FFFF) * 8);
+	}
 }
