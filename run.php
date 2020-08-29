@@ -113,7 +113,7 @@ $application->on("start", function() use ($gta, $application)
 		});
 
 		$input_int32 = (new InputNumber(false, [], $window))->setLeft(20)->setTop(50)->setWidth(100)->setMin(pow(2, 31) * -1)->setMax(pow(2, 31) - 1);
-		$input_float = (new InputNumber(true, [], $window))->setLeft(130)->setTop(50)->setWidth(100)->setMin(0.0)->setMax(PHP_FLOAT_MAX);
+		$input_float = (new InputNumber(true, [], $window))->setLeft(130)->setTop(50)->setWidth(100)->setMin(-PHP_FLOAT_MAX)->setMax(PHP_FLOAT_MAX);
 
 		$timer = $application->getLoop()->addPeriodicTimer(1 / 24, function() use ($gta, &$mode, &$global, &$global_has_changed, $input_global, &$write_as_int, $input_int32, $input_float)
 		{
@@ -132,7 +132,8 @@ $application->on("start", function() use ($gta, $application)
 					}
 					$script_global = $gta->getScriptGlobal($global);
 					$input_int32->setValue($script_global->readInt32());
-					$input_float->setValue($script_global->readFloat());
+					$float = $script_global->readFloat();
+					$input_float->setValue(is_nan($float) ? 0.0 : $float);
 					break;
 
 				case 1:
@@ -143,7 +144,8 @@ $application->on("start", function() use ($gta, $application)
 					}
 					$script_global = $gta->getScriptGlobal($global);
 					$script_global->writeInt32($input_int32->getValue());
-					$input_float->setValue($script_global->readFloat());
+					$float = $script_global->readFloat();
+					$input_float->setValue(is_nan($float) ? 0.0 : $float);
 					break;
 
 				case 2:
