@@ -6,8 +6,6 @@ use Gui\
 $gta = (new GTA());
 $application = new Application([
 	"title" => "PHP V",
-	"top" => 100,
-	"left" => 150,
 	"width" => 300,
 	"height" => 90,
 	"icon" => __DIR__."\\purple-v.ico",
@@ -20,8 +18,8 @@ $application->on("start", function() use ($gta, $application)
 	{
 		$window = new Window([
 			"title" => "PHP V: Self",
-			"top" => 100 + 90 + 30,
-			"left" => 150,
+			"top" => $application->getWindow()->getTop() + $application->getWindow()->getHeight() + 30,
+			"left" => $application->getWindow()->getLeft(),
 			"width" => 300,
 			"height" => 110,
 			"icon" => __DIR__."\\purple-v.ico",
@@ -62,8 +60,8 @@ $application->on("start", function() use ($gta, $application)
 	{
 		$window = new Window([
 			"title" => "PHP V: Globals",
-			"top" => 100,
-			"left" => 150 + 300,
+			"top" => $application->getWindow()->getTop(),
+			"left" => $application->getWindow()->getLeft() + $application->getWindow()->getWidth(),
 			"width" => 250,
 			"height" => 90,
 			"icon" => __DIR__."\\purple-v.ico"
