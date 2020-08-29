@@ -12,6 +12,11 @@ $application = new Application([
 ]);
 $application->on("start", function() use ($gta, $application)
 {
+	$application->getWindow()->on("resize", function() use ($application)
+	{
+		$application->getWindow()->setWidth(300)->setHeight(90);
+	});
+
 	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getEditionName()." Edition, Online ".$gta->getOnlineVersion());
 
 	(new Button())->setLeft(20)->setTop(40)->setValue("Self")->on("click", function() use ($gta, $application)
@@ -24,6 +29,10 @@ $application->on("start", function() use ($gta, $application)
 			"height" => 110,
 			"icon" => __DIR__."\\purple-v.ico",
 		]);
+		$window->on("resize", function() use ($window)
+		{
+			$window->setWidth(300)->setHeight(110);
+		});
 
 		$label_x = (new Label([], $window))->setLeft(20)->setTop(20)->setText("Looking for Ped Factory...");
 		$label_y = (new Label([], $window))->setLeft(20)->setTop(40);
@@ -66,6 +75,10 @@ $application->on("start", function() use ($gta, $application)
 			"height" => 90,
 			"icon" => __DIR__."\\purple-v.ico"
 		]);
+		$window->on("resize", function() use ($window)
+		{
+			$window->setWidth(250)->setHeight(90);
+		});
 
 		$mode = 0;
 		$button_mode = (new Button([], $window))->setLeft(20)->setTop(20)->setWidth(100)->setValue("Read");
