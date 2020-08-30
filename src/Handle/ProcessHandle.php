@@ -1,6 +1,6 @@
 <?php
 namespace V\Handle;
-class ProcessHandle extends Handle
+class ProcessHandle extends ObjectHandle
 {
 	public int $process_id;
 	public int $access;

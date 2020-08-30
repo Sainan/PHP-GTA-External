@@ -4,11 +4,10 @@ use FFI;
 use FFI\CData;
 use V\
 {Handle\ProcessHandle, Kernel32};
-
-const nullptr = 0;
-
 class Pointer
 {
+	const nullptr = 0;
+
 	public ProcessHandle $processHandle;
 	public int $address;
 
@@ -30,7 +29,7 @@ class Pointer
 
 	function isNullptr() : bool
 	{
-		return $this->address == nullptr;
+		return $this->address == Pointer::nullptr;
 	}
 
 	function add(int $offset) : Pointer
@@ -129,7 +128,7 @@ class Pointer
 		Kernel32::WriteProcessMemory($this->processHandle, $this->address, self::$buffer, 1);
 	}
 
-	function writeBinary(string $bin) : void
+	function writeString(string $bin) : void
 	{
 		$i = 0;
 		foreach(str_split($bin) as $c)
@@ -142,12 +141,13 @@ class Pointer
 
 	function writeInt32(int $value) : void
 	{
-		$this->writeBinary(pack("l", $value));
+		$this->writeString(pack("l", $value));
 	}
 
 	function writeFloat(float $value) : void
 	{
-		$this->writeBinary(pack("f", $value));
+		$this->writeString(pack("f", $value));
 	}
 }
+
 Pointer::$buffer = FFI::new(FFI::arrayType(FFI::type("uint8_t"), [Pointer::BUFFER_SIZE]));

@@ -3,18 +3,20 @@ namespace V;
 use FFI;
 use FFI\CData;
 use V\
-{Handle\Handle, Handle\ProcessHandle};
-
-use const V\Pointer\nullptr;
+{Handle\Handle, Handle\ObjectHandle, Handle\ProcessHandle, Pointer\Pointer};
 
 const MAX_PATH = 260;
 
+const PROCESS_CREATE_THREAD = 0x0002;
 const PROCESS_VM_OPERATION = 0x0008;
 const PROCESS_VM_READ = 0x0010;
 const PROCESS_VM_WRITE = 0x0020;
 
-const MAX_MODULE_NAME32 = 255;
+const MEM_COMMIT = 0x00001000;
+const MEM_RESERVE = 0x00002000;
+const PAGE_EXECUTE_READWRITE = 0x40;
 
+const MAX_MODULE_NAME32 = 255;
 const TH32CS_SNAPPROCESS = 0x00000002;
 const TH32CS_SNAPMODULE = 0x00000008;
 const TH32CS_SNAPMODULE32 = 0x00000010;
@@ -32,18 +34,38 @@ class Kernel32
 	{
 		if(self::$ffi->CloseHandle($handle) == 0)
 		{
-			throw new Kernel32Exception();
+			throw new Kernel32Exception("Failed to close handle");
 		}
 	}
 
-	static function ReadProcessMemory(ProcessHandle $processHandle, int $base_address, CData $buffer, int $bytes)
+	static function GetModuleHandleA(string $module) : Handle
 	{
-		self::$ffi->ReadProcessMemory($processHandle->handle, $base_address, FFI::addr($buffer), $bytes, nullptr);
+		return new Handle(self::$ffi->GetModuleHandleA($module));
 	}
 
-	static function WriteProcessMemory(ProcessHandle $processHandle, int $base_address, CData $buffer, int $bytes)
+	static function GetProcAddress(Handle $handle, string $func_name) : int
 	{
-		self::$ffi->WriteProcessMemory($processHandle->handle, $base_address, FFI::addr($buffer), $bytes, nullptr);
+		return self::$ffi->GetProcAddress($handle->handle, $func_name);
+	}
+
+	static function ReadProcessMemory(ProcessHandle $processHandle, int $base_address, CData $buffer, int $bytes) : void
+	{
+		self::$ffi->ReadProcessMemory($processHandle->handle, $base_address, FFI::addr($buffer), $bytes, Pointer::nullptr);
+	}
+
+	static function WriteProcessMemory(ProcessHandle $processHandle, int $base_address, CData $buffer, int $bytes) : void
+	{
+		self::$ffi->WriteProcessMemory($processHandle->handle, $base_address, FFI::addr($buffer), $bytes, Pointer::nullptr);
+	}
+
+	static function VirtualAllocEx(ProcessHandle $processHandle, int $bytes, int $allocation_type = MEM_COMMIT | MEM_RESERVE, int $protect = PAGE_EXECUTE_READWRITE) : Pointer
+	{
+		$pointer = new Pointer($processHandle, self::$ffi->VirtualAllocEx($processHandle->handle, Pointer::nullptr, $bytes, $allocation_type, $protect));
+		if($pointer->isNullptr())
+		{
+			throw new Kernel32Exception("VirtualAllocEx failed to allocate {$bytes} bytes");
+		}
+		return $pointer;
 	}
 
 	static function OpenProcess(int $process_id, int $desired_access) : ProcessHandle
@@ -51,53 +73,69 @@ class Kernel32
 		$handle = new ProcessHandle($process_id, self::$ffi->OpenProcess($desired_access, false, $process_id), $desired_access);
 		if(!$handle->isValid())
 		{
-			throw new Kernel32Exception();
+			throw new Kernel32Exception("Failed to open process");
 		}
 		return $handle;
 	}
 
-	static function CreateToolhelp32Snapshot(int $flags, int $process_id) : Handle
+	static function CreateRemoteThread(ProcessHandle $processHandle, int $function_address, Pointer $parameter) : int
 	{
-		return new Handle(self::$ffi->CreateToolhelp32Snapshot($flags, $process_id));
+		$thread_handle = self::$ffi->CreateRemoteThread($processHandle->handle, 0, 0, $function_address, $parameter->address, 0, 0);
+		if($thread_handle == 0)
+		{
+			throw new Kernel32Exception("Failed to create remote thread");
+		}
+		return $thread_handle;
 	}
 
-	static function Module32First(Handle $snapshot_handle, CData $process_entry) : bool
+	static function CreateToolhelp32Snapshot(int $flags, int $process_id) : ObjectHandle
+	{
+		return new ObjectHandle(self::$ffi->CreateToolhelp32Snapshot($flags, $process_id));
+	}
+
+	static function Module32First(ObjectHandle $snapshot_handle, CData $process_entry) : bool
 	{
 		return Kernel32::$ffi->Module32First($snapshot_handle->handle, FFI::addr($process_entry));
 	}
 
-	static function Module32Next(Handle $snapshot_handle, CData $process_entry) : bool
+	static function Module32Next(ObjectHandle $snapshot_handle, CData $process_entry) : bool
 	{
 		return Kernel32::$ffi->Module32Next($snapshot_handle->handle, FFI::addr($process_entry));
 	}
 
-	static function Process32First(Handle $snapshot_handle, CData $process_entry) : bool
+	static function Process32First(ObjectHandle $snapshot_handle, CData $process_entry) : bool
 	{
 		return Kernel32::$ffi->Process32First($snapshot_handle->handle, FFI::addr($process_entry));
 	}
 
-	static function Process32Next(Handle $snapshot_handle, CData $process_entry) : bool
+	static function Process32Next(ObjectHandle $snapshot_handle, CData $process_entry) : bool
 	{
 		return Kernel32::$ffi->Process32Next($snapshot_handle->handle, FFI::addr($process_entry));
 	}
 }
 
 Kernel32::$ffi = FFI::cdef(str_replace(
-	["CHAR", "BOOL", "DWORD",    "HMODULE", "HANDLE",   "SIZE_T",    "ULONG_PTR", "LONG",    "MAX_PATH", "MAX_MODULE_NAME32"],
-	["char", "bool", "uint32_t", "HANDLE",  "uint64_t", "ULONG_PTR", "uint64_t",  "uint32_t", MAX_PATH ,  MAX_MODULE_NAME32 ],
-	<<<EOC
+["CHAR", "BOOL", "DWORD",    "HMODULE", "HANDLE",   "SIZE_T",    "ULONG_PTR", "BYTE*",    "FARPROC", "LONG",     "LPCSTR",      "MAX_PATH", "MAX_MODULE_NAME32"],
+["char", "bool", "uint32_t", "HANDLE",  "uint64_t", "ULONG_PTR", "uint64_t",  "uint64_t", "uint64_t", "uint32_t", "const char*",  MAX_PATH ,  MAX_MODULE_NAME32 ],
+<<<EOC
 // Errhandlingapi.h
 DWORD GetLastError();
 
 // Handleapi.h
 BOOL CloseHandle(HANDLE hObject);
 
+// Libloaderapi.h
+HMODULE GetModuleHandleA(LPCSTR lpModuleName);
+FARPROC GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
+
 // Memoryapi.h
 BOOL ReadProcessMemory(HANDLE hProcess, uint64_t lpBaseAddress, void* lpBuffer, SIZE_T nSize, uint64_t lpNumberOfBytesRead);
 BOOL WriteProcessMemory(HANDLE hProcess, uint64_t lpBaseAddress, void* lpBuffer, SIZE_T nSize, uint64_t lpNumberOfBytesWritten);
+uint64_t VirtualAllocEx(HANDLE hProcess, uint64_t lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
 
 // Processthreadsapi.h
 HANDLE OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);
+HANDLE CreateRemoteThread(HANDLE hProcess, uint64_t lpThreadAttributes, SIZE_T dwStackSize, uint64_t lpStartAddress, uint64_t lpParameter, DWORD dwCreationFlags, uint64_t lpThreadId);
 
 // tlhelp32.h
 typedef struct tagMODULEENTRY32 {
@@ -106,7 +144,7 @@ typedef struct tagMODULEENTRY32 {
   DWORD   th32ProcessID;
   DWORD   GlblcntUsage;
   DWORD   ProccntUsage;
-uint64_t  modBaseAddr;
+  BYTE*   modBaseAddr;
   DWORD   modBaseSize;
   HMODULE hModule;
   char    szModule[MAX_MODULE_NAME32 + 1];

@@ -13,7 +13,7 @@ class GTA
 	private array $pattern_scan_results_cache = [];
 	private array $pattern_scan_results = [];
 
-	function __construct(int $process_id = -1)
+	function __construct(int $desired_access = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, int $process_id = -1)
 	{
 		if($process_id == -1)
 		{
@@ -23,17 +23,17 @@ class GTA
 				die("GTA V isn't open?\n");
 			}
 		}
-		$this->module = new Module(Kernel32::OpenProcess($process_id, PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE), GTA_MODULE);
+		$this->module = new Module(Kernel32::OpenProcess($process_id, $desired_access), GTA_MODULE);
 	}
 
-	static function tryConstruct() : ?GTA
+	static function tryConstruct(int $desired_access = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE) : ?GTA
 	{
 		$process_id = self::getGtaProcessId();
 		if($process_id == -1)
 		{
 			return null;
 		}
-		return new GTA($process_id);
+		return new GTA($desired_access, $process_id);
 	}
 
 	/** @noinspection PhpUndefinedFieldInspection */
@@ -104,6 +104,11 @@ class GTA
 	function getModule(string $module = GTA_MODULE) : Module
 	{
 		return $module == GTA_MODULE ? $this->module : new Module($this->module->processHandle, $module);
+	}
+
+	function allocate(int $bytes) : Pointer
+	{
+		return Kernel32::VirtualAllocEx($this->module->processHandle, $bytes);
 	}
 
 	function getPatternScanResult(string $pattern_name, callable $get_pattern_func, ?callable $process_pointer_func = null) : Pointer
