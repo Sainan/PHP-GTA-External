@@ -1,6 +1,6 @@
 # PHP V
 
-A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://www.php.net/manual/en/book.ffi.php) to interface with a custom C++ DLL to read & write process memory and [php-gui](https://github.com/gabrielrcouto/php-gui).
+A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://www.php.net/manual/en/book.ffi.php) and [php-gui](https://github.com/gabrielrcouto/php-gui).
 
 ![Screenshot](screenshot.png)
 
