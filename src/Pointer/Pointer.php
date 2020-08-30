@@ -1,15 +1,25 @@
 <?php
 namespace V\Pointer;
+use FFI;
+use FFI\CData;
 use V\
-{NativeHelper, Handle};
+{Handle\ProcessHandle, Kernel32};
+
+const nullptr = 0;
+
 class Pointer
 {
-	public Handle $handle;
+	public ProcessHandle $processHandle;
 	public int $address;
 
-	function __construct(Handle $handle, int $address)
+	const BUFFER_SIZE = 0xFFFF;
+	public static CData $buffer;
+	private static int $buffer_address_start = 0;
+	private static int $buffer_address_end = 0;
+
+	function __construct(ProcessHandle $processProcess, int $address)
 	{
-		$this->handle = $handle;
+		$this->processHandle = $processProcess;
 		$this->address = $address;
 	}
 
@@ -20,27 +30,29 @@ class Pointer
 
 	function isNullptr() : bool
 	{
-		return $this->address == 0;
+		return $this->address == nullptr;
 	}
 
 	function add(int $offset) : Pointer
 	{
-		return new Pointer($this->handle, $this->address + $offset);
+		return new Pointer($this->processHandle, $this->address + $offset);
 	}
 
 	function subtract(int $offset) : Pointer
 	{
-		return new Pointer($this->handle, $this->address - $offset);
+		return new Pointer($this->processHandle, $this->address - $offset);
 	}
 
 	function isBuffered(int $min_bytes = 1) : bool
 	{
-		return NativeHelper::$buffer_address_start <= $this->address && $this->address + $min_bytes <= NativeHelper::$buffer_address_end;
+		return self::$buffer_address_start <= $this->address && $this->address + $min_bytes <= self::$buffer_address_end;
 	}
 
 	function buffer(int $bytes) : void
 	{
-		NativeHelper::process_read_bytes($this->handle, $this->address, $bytes);
+		Kernel32::ReadProcessMemory($this->processHandle, $this->address, self::$buffer, $bytes);
+		self::$buffer_address_start = $this->address;
+		self::$buffer_address_end = $this->address + $bytes;
 	}
 
 	function ensureBuffer(int $bytes) : void
@@ -55,11 +67,11 @@ class Pointer
 	{
 		$this->ensureBuffer($bytes);
 		$bin_str = "";
-		$i = $this->address - NativeHelper::$buffer_address_start;
+		$i = $this->address - self::$buffer_address_start;
 		$end = $i + $bytes;
 		for(; $i < $end; $i++)
 		{
-			$bin_str .= chr(NativeHelper::buffer_read_byte($i));
+			$bin_str .= chr(self::$buffer[$i]);
 		}
 		return $bin_str;
 	}
@@ -67,7 +79,7 @@ class Pointer
 	function readByte() : int
 	{
 		$this->ensureBuffer(1);
-		return NativeHelper::buffer_read_byte($this->address - NativeHelper::$buffer_address_start);
+		return self::$buffer[$this->address - self::$buffer_address_start];
 	}
 
 	function readInt32() : int
@@ -92,7 +104,7 @@ class Pointer
 
 	function dereference() : Pointer
 	{
-		return new Pointer($this->handle, $this->readUInt64());
+		return new Pointer($this->processHandle, $this->readUInt64());
 	}
 
 	function readString() : string
@@ -112,8 +124,9 @@ class Pointer
 
 	function writeByte(int $b) : void
 	{
-		NativeHelper::buffer_write_byte(0, $b);
-		NativeHelper::process_write_bytes($this->handle, $this->address, 1);
+		self::$buffer[0] = $b;
+		self::$buffer_address_start++;
+		Kernel32::WriteProcessMemory($this->processHandle, $this->address, self::$buffer, 1);
 	}
 
 	function writeBinary(string $bin) : void
@@ -121,9 +134,10 @@ class Pointer
 		$i = 0;
 		foreach(str_split($bin) as $c)
 		{
-			NativeHelper::buffer_write_byte($i++, ord($c));
+			self::$buffer[$i++] = ord($c);
 		}
-		NativeHelper::process_write_bytes($this->handle, $this->address, $i);
+		self::$buffer_address_start += $i;
+		Kernel32::WriteProcessMemory($this->processHandle, $this->address, self::$buffer, $i);
 	}
 
 	function writeInt32(int $value) : void
@@ -136,3 +150,4 @@ class Pointer
 		$this->writeBinary(pack("f", $value));
 	}
 }
+Pointer::$buffer = FFI::new(FFI::arrayType(FFI::type("uint8_t"), [Pointer::BUFFER_SIZE]));

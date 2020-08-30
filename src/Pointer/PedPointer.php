@@ -1,15 +1,14 @@
 <?php
 namespace V\Pointer;
-use V\Handle;
-
+use V\Handle\ProcessHandle;
 const OFFSET_PED_HEALTH = 0x0280;
 const OFFSET_PED_ARMOR = 0x14E0;
 
 class PedPointer extends EntityPointer
 {
-	function __construct(Handle $handle, int $address)
+	function __construct(ProcessHandle $processHandle, int $address)
 	{
-		parent::__construct($handle, $address);
+		parent::__construct($processHandle, $address);
 	}
 
 	function getHealth() : float

@@ -1,11 +1,11 @@
 <?php
 namespace V\Pointer;
-use V\Handle;
+use V\Handle\ProcessHandle;
 class Vector3Pointer extends Pointer
 {
-	function __construct(Handle $handle, int $address)
+	function __construct(ProcessHandle $processHandle, int $address)
 	{
-		parent::__construct($handle, $address);
+		parent::__construct($processHandle, $address);
 	}
 
 	function bufferXYZ()

@@ -1,6 +1,6 @@
 # PHP V
 
-A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://www.php.net/manual/en/book.ffi.php) and [php-gui](https://github.com/gabrielrcouto/php-gui).
+A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://github.com/dstogov/php-ffi) and [php-gui](https://github.com/gabrielrcouto/php-gui).
 
 ![Screenshot](screenshot.png)
 
@@ -12,11 +12,11 @@ A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https:
 2. Extract the zip.
 3. Double-click `start.bat`.
 
-### The masochist way
+### The manual way
 
-1. Ensure that you have PHP >= 7.4 installed.
-2. Clone this repo.
-3. Compile `src/native_helper.cpp` to create a `bin/native_helper.dll`. If you have [MinGW-W64](https://sourceforge.net/projects/mingw-w64/files/), you can use `compile-nativehelper-with-g++.bat`.
-4. Ensure that you have `extension=ffi` in your php.ini.
-5. `composer install`.
-6. `php run.php`.
+If you have:
+
+- PHP-CLI 7.4.x with the FFI extension enabled
+- [Composer](https://getcomposer.org/)
+
+Feel free to clone this repo, run `composer install` in the clone's directory, and if that worked fine, you can just execute `php run.php`.

@@ -59,7 +59,8 @@ class Pattern
 		{
 			if(!$pointer->isBuffered())
 			{
-				$pointer->buffer($module_end - $pointer->address);
+				$bytes = $module_end - $pointer->address;
+				$pointer->buffer($bytes > Pointer::BUFFER_SIZE ? Pointer::BUFFER_SIZE : $bytes);
 			}
 			if($pointer->readByte() == $this->pattern_arr[$pattern_matches])
 			{

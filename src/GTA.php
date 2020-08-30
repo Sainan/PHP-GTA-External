@@ -1,16 +1,15 @@
 <?php
 namespace V;
+use FFI;
 use V\Pointer\
 {PedPointer, Pointer};
-
 const GTA_MODULE = "GTA5.exe";
 
 const PATTERN_SCAN_RESULTS_CACHE_JSON_PATH = __DIR__."/../pattern_scan_results_cache.json";
 
 class GTA
 {
-	public int $process_id;
-	public Pointer $base;
+	public Module $module;
 	private array $pattern_scan_results_cache = [];
 	private array $pattern_scan_results = [];
 
@@ -18,24 +17,50 @@ class GTA
 	{
 		if($process_id == -1)
 		{
-			$process_id = NativeHelper::get_process_id(GTA_MODULE);
+			$process_id = self::getGtaProcessId();
 			if($process_id == -1)
 			{
 				die("GTA V isn't open?\n");
 			}
 		}
-		$this->process_id = $process_id;
-		$this->base = new Pointer(Kernel32::OpenProcess($process_id), NativeHelper::get_module_base($process_id, GTA_MODULE));
+		$this->module = new Module(Kernel32::OpenProcess($process_id, PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE), GTA_MODULE);
 	}
 
 	static function tryConstruct() : ?GTA
 	{
-		$process_id = NativeHelper::get_process_id(GTA_MODULE);
+		$process_id = self::getGtaProcessId();
 		if($process_id == -1)
 		{
 			return null;
 		}
 		return new GTA($process_id);
+	}
+
+	/** @noinspection PhpUndefinedFieldInspection */
+	static function getGtaProcessId() : int
+	{
+		$process_snapshot = Kernel32::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if($process_snapshot->isValid())
+		{
+			$process_entry = Kernel32::$ffi->new("PROCESSENTRY32");
+			$process_entry->dwSize = FFI::sizeof($process_entry);
+			if(Kernel32::Process32First($process_snapshot, $process_entry))
+			{
+				do
+				{
+					if(FFI::string($process_entry->szExeFile) == GTA_MODULE)
+					{
+						return $process_entry->th32ProcessID;
+					}
+				}
+				while(Kernel32::Process32Next($process_snapshot, $process_entry));
+			}
+			else
+			{
+				throw new Kernel32Exception();
+			}
+		}
+		return -1;
 	}
 
 	function initPatternScanResultsCache() : void
@@ -51,7 +76,7 @@ class GTA
 				{
 					if(substr($pattern_name, 0, 2) != "__")
 					{
-						$this->pattern_scan_results[$pattern_name] = $this->base->add($this->pattern_scan_results_cache[$pattern_name]);
+						$this->pattern_scan_results[$pattern_name] = $this->module->base->add($this->pattern_scan_results_cache[$pattern_name]);
 					}
 				}
 				return;
@@ -69,7 +94,7 @@ class GTA
 		{
 			return "Steam";
 		}
-		if(is_dir(dirname($this->getModule()->getPath())."/.egstore/"))
+		if(is_dir(dirname($this->getModule()->path)."/.egstore/"))
 		{
 			return "Epic Games";
 		}
@@ -78,7 +103,7 @@ class GTA
 
 	function getModule(string $module = GTA_MODULE) : Module
 	{
-		return new Module($this->process_id, $module, $this->base);
+		return $module == GTA_MODULE ? $this->module : new Module($this->module->processHandle, $module);
 	}
 
 	function getPatternScanResult(string $pattern_name, callable $get_pattern_func, ?callable $process_pointer_func = null) : Pointer
@@ -134,7 +159,7 @@ class GTA
 
 	function getPlayerPed() : PedPointer
 	{
-		return new PedPointer($this->base->handle, $this->getPedFactory()->add(8)->dereference()->address);
+		return new PedPointer($this->module->base->processHandle, $this->getPedFactory()->add(8)->dereference()->address);
 	}
 
 	function getScriptGlobal(int $global) : Pointer
