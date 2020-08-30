@@ -2,7 +2,6 @@
 require "vendor/autoload.php";
 use V\
 {GTA, Pattern, Pointer\Pointer};
-use const V\GTA_MODULE;
 if(empty($argv[1]))
 {
 	die(/** @lang text */ "Syntax: php pattern.php <pattern> [mask]\n");

@@ -1,7 +1,6 @@
 <?php
 namespace V;
 use RuntimeException;
-use Throwable;
 class Kernel32Exception extends RuntimeException
 {
 	function __construct(string $message)

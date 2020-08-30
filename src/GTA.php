@@ -3,17 +3,17 @@ namespace V;
 use FFI;
 use V\Pointer\
 {PedPointer, Pointer};
-const GTA_MODULE = "GTA5.exe";
-
-const PATTERN_SCAN_RESULTS_CACHE_JSON_PATH = __DIR__."/../pattern_scan_results_cache.json";
-
 class GTA
 {
+	const GTA_MODULE = "GTA5.exe";
+
+	private const PATTERN_SCAN_RESULTS_CACHE_JSON_PATH = __DIR__."/../pattern_scan_results_cache.json";
+
 	public Module $module;
 	private array $pattern_scan_results_cache = [];
 	private array $pattern_scan_results = [];
 
-	function __construct(int $desired_access = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, int $process_id = -1)
+	function __construct(int $desired_access = Kernel32::PROCESS_VM_OPERATION | Kernel32::PROCESS_VM_READ | Kernel32::PROCESS_VM_WRITE, int $process_id = -1)
 	{
 		if($process_id == -1)
 		{
@@ -23,10 +23,10 @@ class GTA
 				die("GTA V isn't open?\n");
 			}
 		}
-		$this->module = new Module(Kernel32::OpenProcess($process_id, $desired_access), GTA_MODULE);
+		$this->module = new Module(Kernel32::OpenProcess($process_id, $desired_access), self::GTA_MODULE);
 	}
 
-	static function tryConstruct(int $desired_access = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE) : ?GTA
+	static function tryConstruct(int $desired_access = Kernel32::PROCESS_VM_OPERATION | Kernel32::PROCESS_VM_READ | Kernel32::PROCESS_VM_WRITE) : ?GTA
 	{
 		$process_id = self::getGtaProcessId();
 		if($process_id == -1)
@@ -39,36 +39,34 @@ class GTA
 	/** @noinspection PhpUndefinedFieldInspection */
 	static function getGtaProcessId() : int
 	{
-		$process_snapshot = Kernel32::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if($process_snapshot->isValid())
+		$process_snapshot = Kernel32::CreateToolhelp32Snapshot(Kernel32::TH32CS_SNAPPROCESS, 0);
+		if(!$process_snapshot->isValid())
 		{
-			$process_entry = Kernel32::$ffi->new("PROCESSENTRY32");
-			$process_entry->dwSize = FFI::sizeof($process_entry);
-			if(Kernel32::Process32First($process_snapshot, $process_entry))
+			throw new Kernel32Exception("Failed to get process snapshot");
+		}
+		$process_entry = Kernel32::$ffi->new("PROCESSENTRY32");
+		$process_entry->dwSize = FFI::sizeof($process_entry);
+		if(!Kernel32::Process32First($process_snapshot, $process_entry))
+		{
+			throw new Kernel32Exception("Failed to get process list");
+		}
+		do
+		{
+			if(FFI::string($process_entry->szExeFile) == self::GTA_MODULE)
 			{
-				do
-				{
-					if(FFI::string($process_entry->szExeFile) == GTA_MODULE)
-					{
-						return $process_entry->th32ProcessID;
-					}
-				}
-				while(Kernel32::Process32Next($process_snapshot, $process_entry));
-			}
-			else
-			{
-				throw new Kernel32Exception();
+				return $process_entry->th32ProcessID;
 			}
 		}
+		while(Kernel32::Process32Next($process_snapshot, $process_entry));
 		return -1;
 	}
 
 	function initPatternScanResultsCache() : void
 	{
 		$online_version = $this->getOnlineVersion();
-		if(file_exists(PATTERN_SCAN_RESULTS_CACHE_JSON_PATH))
+		if(file_exists(self::PATTERN_SCAN_RESULTS_CACHE_JSON_PATH))
 		{
-			$this->pattern_scan_results_cache = json_decode(file_get_contents(PATTERN_SCAN_RESULTS_CACHE_JSON_PATH), true);
+			$this->pattern_scan_results_cache = json_decode(file_get_contents(self::PATTERN_SCAN_RESULTS_CACHE_JSON_PATH), true);
 			if(@$this->pattern_scan_results_cache["__edition"] === $this->getEditionName() && @$this->pattern_scan_results_cache["__version"] === $online_version)
 			{
 				echo "Edition and Online Version match cache, so we're using cached offsets!\n";
@@ -94,16 +92,16 @@ class GTA
 		{
 			return "Steam";
 		}
-		if(is_dir(dirname($this->getModule()->path)."/.egstore/"))
+		if(is_dir(dirname($this->module->path)."/.egstore/"))
 		{
 			return "Epic Games";
 		}
 		return "Social Club";
 	}
 
-	function getModule(string $module = GTA_MODULE) : Module
+	function getModule(string $module) : Module
 	{
-		return $module == GTA_MODULE ? $this->module : new Module($this->module->processHandle, $module);
+		return $module == self::GTA_MODULE ? $this->module : new Module($this->module->processHandle, $module);
 	}
 
 	function allocate(int $bytes) : Pointer
@@ -116,8 +114,7 @@ class GTA
 		if(!array_key_exists($pattern_name, $this->pattern_scan_results))
 		{
 			echo "Looking for {$pattern_name}... ";
-			$module = $this->getModule();
-			$this->pattern_scan_results[$pattern_name] = ($get_pattern_func())->scan($module);
+			$this->pattern_scan_results[$pattern_name] = ($get_pattern_func())->scan($this->module);
 			if(!$this->pattern_scan_results[$pattern_name] instanceof Pointer)
 			{
 				die("Pattern not found. :(\n");
@@ -126,12 +123,12 @@ class GTA
 			{
 				$this->pattern_scan_results[$pattern_name] = $process_pointer_func($this->pattern_scan_results[$pattern_name]);
 			}
-			$offset = $module->getOffsetTo($this->pattern_scan_results[$pattern_name]);
-			echo "Found at ".GTA_MODULE."+".dechex($offset)." (".$this->pattern_scan_results[$pattern_name].")";
+			$offset = $this->module->getOffsetTo($this->pattern_scan_results[$pattern_name]);
+			echo "Found at ".self::GTA_MODULE."+".dechex($offset)." (".$this->pattern_scan_results[$pattern_name].")";
 			if(count($this->pattern_scan_results_cache) > 0)
 			{
 				$this->pattern_scan_results_cache[$pattern_name] = $offset;
-				file_put_contents(PATTERN_SCAN_RESULTS_CACHE_JSON_PATH, json_encode($this->pattern_scan_results_cache));
+				file_put_contents(self::PATTERN_SCAN_RESULTS_CACHE_JSON_PATH, json_encode($this->pattern_scan_results_cache));
 			}
 			echo "\n";
 		}

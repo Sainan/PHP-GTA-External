@@ -3,7 +3,7 @@ require "vendor/autoload.php";
 use V\GTA;
 use Gui\
 {Application, Components\Button, Components\InputNumber, Components\Label, Components\Window};
-$gta = (new GTA());
+$gta = new GTA();
 $gta->initPatternScanResultsCache();
 $application = new Application([
 	"title" => "PHP V",

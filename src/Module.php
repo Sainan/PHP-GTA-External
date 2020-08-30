@@ -16,34 +16,28 @@ class Module
 	{
 		$this->processHandle = $processHandle;
 		$this->name = $name;
-		$module_snapshot = Kernel32::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, $processHandle->process_id);
-		if($module_snapshot->isValid())
+		$module_snapshot = Kernel32::CreateToolhelp32Snapshot(Kernel32::TH32CS_SNAPMODULE | Kernel32::TH32CS_SNAPMODULE32, $processHandle->process_id);
+		if(!$module_snapshot->isValid())
 		{
-			$module_entry = Kernel32::$ffi->new("MODULEENTRY32");
-			$module_entry->dwSize = FFI::sizeof($module_entry);
-			if(Kernel32::Module32First($module_snapshot, $module_entry))
+			throw new Kernel32Exception("Failed to create module snapshot");
+		}
+		$module_entry = Kernel32::$ffi->new("MODULEENTRY32");
+		$module_entry->dwSize = FFI::sizeof($module_entry);
+		if(!Kernel32::Module32First($module_snapshot, $module_entry))
+		{
+			throw new Kernel32Exception("Failed to get module list");
+		}
+		do
+		{
+			if(FFI::string($module_entry->szModule) == $name)
 			{
-				do
-				{
-					if(FFI::string($module_entry->szModule) == $name)
-					{
-						$this->base = new Pointer($processHandle, $module_entry->modBaseAddr);
-						$this->size = $module_entry->modBaseSize;
-						$this->path = FFI::string($module_entry->szExePath);
-						break;
-					}
-				}
-				while(Kernel32::Module32Next($module_snapshot, $module_entry));
-			}
-			else
-			{
-				throw new Kernel32Exception();
+				$this->base = new Pointer($processHandle, $module_entry->modBaseAddr);
+				$this->size = $module_entry->modBaseSize;
+				$this->path = FFI::string($module_entry->szExePath);
+				break;
 			}
 		}
-		else
-		{
-			throw new Kernel32Exception();
-		}
+		while(Kernel32::Module32Next($module_snapshot, $module_entry));
 	}
 
 	function isValid() : bool

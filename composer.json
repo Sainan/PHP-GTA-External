@@ -8,6 +8,6 @@
 		"php": "^7.4",
 		"ext-json": "*",
 		"ext-ffi": "*",
-		"gabrielrcouto/php-gui": "dev-master",
+		"gabrielrcouto/php-gui": "dev-master"
 	}
 }
