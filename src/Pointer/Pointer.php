@@ -12,7 +12,7 @@ class Pointer
 	public ProcessHandle $processHandle;
 	public int $address;
 
-	const BUFFER_SIZE = 0xFFFF;
+	const BUFFER_SIZE = 0x10000;
 	public static CData $buffer;
 	private static int $buffer_address_start = 0;
 	private static int $buffer_address_end = 0;
