@@ -16,7 +16,7 @@ A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https:
 
 1. Ensure that you have PHP >= 7.4 installed.
 2. Clone this repo.
-3. Compile `src/cpp_api.cpp` to create a `bin/cpp_api.dll`. If you have [MinGW-W64](https://sourceforge.net/projects/mingw-w64/files/), you can use `compile-dll-with-g++.bat`.
+3. Compile `src/native_helper.cpp` to create a `bin/native_helper.dll`. If you have [MinGW-W64](https://sourceforge.net/projects/mingw-w64/files/), you can use `compile-nativehelper-with-g++.bat`.
 4. Ensure that you have `extension=ffi` in your php.ini.
 5. `composer install`.
 6. `php run.php`.

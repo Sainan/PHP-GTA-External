@@ -6,7 +6,7 @@
 
 #define og_extern extern
 #define extern og_extern "C" __declspec(dllexport)
-#include "cpp_api.h"
+#include "native_helper.h"
 
 static char buffer[0xffff];
 

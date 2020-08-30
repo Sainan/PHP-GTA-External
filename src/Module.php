@@ -11,9 +11,9 @@ class Module
 	function __construct(int $process_id, string $name, ?Pointer $base = null)
 	{
 		$this->process_id = $process_id;
-		$this->base = $base ?? CppInterface::get_module_base($this->process_id, $name);
+		$this->base = $base ?? NativeHelper::get_module_base($this->process_id, $name);
 		$this->name = $name;
-		$this->size = CppInterface::get_module_size($process_id, $name);
+		$this->size = NativeHelper::get_module_size($process_id, $name);
 	}
 
 	function isValid() : bool
@@ -23,7 +23,7 @@ class Module
 
 	function getPath() : string
 	{
-		return CppInterface::get_module_path($this->process_id, $this->name);
+		return NativeHelper::get_module_path($this->process_id, $this->name);
 	}
 
 	function getOffsetTo(Pointer $pointer) : int

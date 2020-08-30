@@ -1,4 +1,4 @@
-#define FFI_LIB "../bin/cpp_api.dll"
+#define FFI_LIB "../bin/native_helper.dll"
 
 extern int32_t get_process_id(const char* exe_file);
 extern uint64_t get_module_base(int32_t process_id, const char* module);

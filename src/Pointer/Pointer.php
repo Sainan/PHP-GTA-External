@@ -1,7 +1,7 @@
 <?php
 namespace V\Pointer;
 use V\
-{CppInterface, Handle};
+{NativeHelper, Handle};
 class Pointer
 {
 	public Handle $handle;
@@ -35,12 +35,12 @@ class Pointer
 
 	function isBuffered(int $min_bytes = 1) : bool
 	{
-		return CppInterface::$buffer_address_start <= $this->address && $this->address + $min_bytes <= CppInterface::$buffer_address_end;
+		return NativeHelper::$buffer_address_start <= $this->address && $this->address + $min_bytes <= NativeHelper::$buffer_address_end;
 	}
 
 	function buffer(int $bytes) : void
 	{
-		CppInterface::process_read_bytes($this->handle, $this->address, $bytes);
+		NativeHelper::process_read_bytes($this->handle, $this->address, $bytes);
 	}
 
 	function ensureBuffer(int $bytes) : void
@@ -55,11 +55,11 @@ class Pointer
 	{
 		$this->ensureBuffer($bytes);
 		$bin_str = "";
-		$i = $this->address - CppInterface::$buffer_address_start;
+		$i = $this->address - NativeHelper::$buffer_address_start;
 		$end = $i + $bytes;
 		for(; $i < $end; $i++)
 		{
-			$bin_str .= chr(CppInterface::buffer_read_byte($i));
+			$bin_str .= chr(NativeHelper::buffer_read_byte($i));
 		}
 		return $bin_str;
 	}
@@ -67,7 +67,7 @@ class Pointer
 	function readByte() : int
 	{
 		$this->ensureBuffer(1);
-		return CppInterface::buffer_read_byte($this->address - CppInterface::$buffer_address_start);
+		return NativeHelper::buffer_read_byte($this->address - NativeHelper::$buffer_address_start);
 	}
 
 	function readInt32() : int
@@ -112,8 +112,8 @@ class Pointer
 
 	function writeByte(int $b) : void
 	{
-		CppInterface::buffer_write_byte(0, $b);
-		CppInterface::process_write_bytes($this->handle, $this->address, 1);
+		NativeHelper::buffer_write_byte(0, $b);
+		NativeHelper::process_write_bytes($this->handle, $this->address, 1);
 	}
 
 	function writeBinary(string $bin) : void
@@ -121,9 +121,9 @@ class Pointer
 		$i = 0;
 		foreach(str_split($bin) as $c)
 		{
-			CppInterface::buffer_write_byte($i++, ord($c));
+			NativeHelper::buffer_write_byte($i++, ord($c));
 		}
-		CppInterface::process_write_bytes($this->handle, $this->address, $i);
+		NativeHelper::process_write_bytes($this->handle, $this->address, $i);
 	}
 
 	function writeInt32(int $value) : void

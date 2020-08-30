@@ -1,7 +1,7 @@
 <?php /** @noinspection PhpUndefinedMethodInspection */
 namespace V;
 use FFI;
-class CppInterface
+class NativeHelper
 {
 	public static FFI $ffi;
 	public static int $buffer_size = 0;
@@ -61,6 +61,6 @@ class CppInterface
 
 $cwd = getcwd();
 chdir(__DIR__);
-CppInterface::$ffi = FFI::load("cpp_api.h");
-CppInterface::$buffer_size = CppInterface::$ffi->buffer_size();
+NativeHelper::$ffi = FFI::load("native_helper.h");
+NativeHelper::$buffer_size = NativeHelper::$ffi->buffer_size();
 chdir($cwd);

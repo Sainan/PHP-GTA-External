@@ -18,19 +18,19 @@ class GTA
 	{
 		if($process_id == -1)
 		{
-			$process_id = CppInterface::get_process_id(GTA_MODULE);
+			$process_id = NativeHelper::get_process_id(GTA_MODULE);
 			if($process_id == -1)
 			{
 				die("GTA V isn't open?\n");
 			}
 		}
 		$this->process_id = $process_id;
-		$this->base = new Pointer(Kernel32::OpenProcess($process_id), CppInterface::get_module_base($process_id, GTA_MODULE));
+		$this->base = new Pointer(Kernel32::OpenProcess($process_id), NativeHelper::get_module_base($process_id, GTA_MODULE));
 	}
 
 	static function tryConstruct() : ?GTA
 	{
-		$process_id = CppInterface::get_process_id(GTA_MODULE);
+		$process_id = NativeHelper::get_process_id(GTA_MODULE);
 		if($process_id == -1)
 		{
 			return null;
