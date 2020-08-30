@@ -3,29 +3,63 @@ namespace V;
 use V\Pointer\Pointer;
 class Pattern
 {
-	public array $pattern_arr;
+	private array $pattern_arr;
 	public int $pattern_size;
 
-	function __construct(string $pattern)
+	function __construct(array $pattern_arr)
 	{
-		$this->pattern_arr = explode(" ", $pattern);
+		$this->pattern_arr = $pattern_arr;
 		$this->pattern_size = count($this->pattern_arr);
-		for($i = 0; $i < $this->pattern_size; $i++)
-		{
-			$this->pattern_arr[$i] = $this->pattern_arr[$i] == "?" ? -1 : hexdec($this->pattern_arr[$i]);
-		}
 	}
 
-	function scan(Module $module) : ?Pointer
+	static function isIdaPatternString(string $pattern) : bool
+	{
+		return preg_match('/((\?|[0-9a-f]{2}) )+[0-9a-f]{2}/i', $pattern) === 1;
+	}
+
+	static function ida(string $pattern) : Pattern
+	{
+		$pattern_arr = explode(" ", $pattern);
+		foreach($pattern_arr as $i => $c)
+		{
+			$pattern_arr[$i] = $c == "?" ? -1 : hexdec($c);
+		}
+		return new Pattern($pattern_arr);
+	}
+
+	static function binary(string $pattern, ?string $mask = null) : Pattern
+	{
+		$pattern_arr = array_map("ord", str_split($pattern));
+		if(is_string($mask))
+		{
+			foreach(str_split($mask) as $i => $c)
+			{
+				if($c == "?")
+				{
+					$pattern_arr[$i] = -1;
+				}
+			}
+		}
+		return new Pattern($pattern_arr);
+	}
+
+	static function escapedBinary(string $pattern, ?string $mask = null) : Pattern
+	{
+		$arr = explode("\\x", $pattern);
+		array_shift($arr);
+		return Pattern::binary(join("", array_map("chr", array_map("hexdec", $arr))), $mask);
+	}
+
+	function scan(Module $module, ?Pointer $start = null) : ?Pointer
 	{
 		$pattern_matches = 0;
-		$gta_end = $module->base->address + $module->size - 1;
-		$pointer = clone $module->base;
-		for(; $pointer->address < $gta_end; $pointer->address++)
+		$module_end = $module->base->address + $module->size - 1;
+		$pointer = $start ?? clone $module->base;
+		for(; $pointer->address < $module_end; $pointer->address++)
 		{
 			if(!$pointer->isBuffered())
 			{
-				$pointer->buffer($gta_end - $pointer->address);
+				$pointer->buffer($module_end - $pointer->address);
 			}
 			if($pointer->readByte() == $this->pattern_arr[$pattern_matches])
 			{
@@ -46,6 +80,65 @@ class Pattern
 			}
 		}
 		return null;
+	}
+
+	function scanAll(Module $module, callable $on_match) : void
+	{
+		$module_end = $module->base->address + $module->size - 1;
+		$pointer = clone $module->base;
+		while($pointer->address < $module_end)
+		{
+			$res = $this->scan($module, $pointer);
+			if(!$res instanceof Pointer)
+			{
+				break;
+			}
+			$pointer = $res->add(1);
+			$on_match($res);
+		}
+	}
+
+	function toPatternString() : string
+	{
+		$str = "[";
+		foreach($this->pattern_arr as $i)
+		{
+			$str .= $i.", ";
+		}
+		return rtrim($str, ", ")."]";
+	}
+
+	function toIdaPatternString() : string
+	{
+		$str = "";
+		foreach($this->pattern_arr as $i)
+		{
+			$str .= $i == -1 ? "?" : dechex($i);
+			$str .= " ";
+		}
+		return rtrim($str, " ");
+	}
+
+	function __toString() : string
+	{
+		return $this->toIdaPatternString();
+	}
+
+	function toBinaryPatternString() : string
+	{
+		$pattern = "";
+		$mask = "";
+		foreach($this->pattern_arr as $i)
+		{
+			$pattern .= "\\x".str_pad(dechex($i == -1 ? 0 : $i), 2, "0", STR_PAD_LEFT);
+			$mask .= $i == -1 ? "?" : "x";
+		}
+		$pattern = "\"".$pattern."\"";
+		if(strpos($mask, "?") !== false)
+		{
+			$pattern .= ", \"$mask\"";
+		}
+		return $pattern;
 	}
 }
 

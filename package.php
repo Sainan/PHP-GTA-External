@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
 echo "Compiling with reasonable options...\n";
 passthru("g++ -shared -s -Ofast -o bin/cpp_api.dll src/cpp_api.cpp");
 

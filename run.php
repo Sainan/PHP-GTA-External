@@ -4,6 +4,7 @@ use V\GTA;
 use Gui\
 {Application, Components\Button, Components\InputNumber, Components\Label, Components\Window};
 $gta = (new GTA());
+$gta->initPatternScanResultsCache();
 $application = new Application([
 	"title" => "PHP V",
 	"width" => 300,
@@ -17,7 +18,7 @@ $application->on("start", function() use ($gta, $application)
 		$application->getWindow()->setWidth(300)->setHeight(90);
 	});
 
-	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getEditionName()." Edition, Online ".$gta->getOnlineVersion());
+	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getOnlineVersion().", ".$gta->getEditionName()." Edition");
 
 	(new Button())->setLeft(20)->setTop(40)->setValue("Self")->on("click", function() use ($gta, $application)
 	{

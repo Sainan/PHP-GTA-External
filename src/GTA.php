@@ -14,14 +14,32 @@ class GTA
 	private array $pattern_scan_results_cache = [];
 	private array $pattern_scan_results = [];
 
-	function __construct()
+	function __construct(int $process_id = -1)
 	{
-		$this->process_id = CppInterface::get_process_id(GTA_MODULE);
-		if($this->process_id == -1)
+		if($process_id == -1)
 		{
-			die("GTA V isn't open?\n");
+			$process_id = CppInterface::get_process_id(GTA_MODULE);
+			if($process_id == -1)
+			{
+				die("GTA V isn't open?\n");
+			}
 		}
-		$this->base = new Pointer(CppInterface::open_process($this->process_id), CppInterface::get_module_base($this->process_id, GTA_MODULE));
+		$this->process_id = $process_id;
+		$this->base = new Pointer(CppInterface::open_process($process_id), CppInterface::get_module_base($process_id, GTA_MODULE));
+	}
+
+	static function tryConstruct() : ?GTA
+	{
+		$process_id = CppInterface::get_process_id(GTA_MODULE);
+		if($process_id == -1)
+		{
+			return null;
+		}
+		return new GTA($process_id);
+	}
+
+	function initPatternScanResultsCache() : void
+	{
 		$online_version = $this->getOnlineVersion();
 		if(file_exists(PATTERN_SCAN_RESULTS_CACHE_JSON_PATH))
 		{
@@ -47,11 +65,11 @@ class GTA
 
 	function getEditionName() : string
 	{
-		if(CppInterface::get_module_base($this->process_id, "steam_api64.dll") != 0)
+		if($this->getModule("steam_api64.dll")->isValid())
 		{
 			return "Steam";
 		}
-		if(is_dir(dirname(CppInterface::get_module_path($this->process_id, GTA_MODULE))."/.egstore/"))
+		if(is_dir(dirname($this->getModule()->getPath())."/.egstore/"))
 		{
 			return "Epic Games";
 		}
@@ -60,16 +78,16 @@ class GTA
 
 	function getModule(string $module = GTA_MODULE) : Module
 	{
-		return new Module($this->process_id, $this->base, $module);
+		return new Module($this->process_id, $module, $this->base);
 	}
 
-	function getPatternScanResult(string $pattern_name, string $pattern, ?callable $process_pointer_func = null) : Pointer
+	function getPatternScanResult(string $pattern_name, callable $get_pattern_func, ?callable $process_pointer_func = null) : Pointer
 	{
 		if(!array_key_exists($pattern_name, $this->pattern_scan_results))
 		{
 			echo "Looking for {$pattern_name}... ";
 			$module = $this->getModule();
-			$this->pattern_scan_results[$pattern_name] = (new Pattern($pattern))->scan($module);
+			$this->pattern_scan_results[$pattern_name] = ($get_pattern_func())->scan($module);
 			if(!$this->pattern_scan_results[$pattern_name] instanceof Pointer)
 			{
 				die("Pattern not found. :(\n");
@@ -92,7 +110,10 @@ class GTA
 
 	function getOnlineVersion() : string
 	{
-		$pointer = $this->getPatternScanResult("Online Version", "4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8", function(Pointer $pointer) : Pointer
+		$pointer = $this->getPatternScanResult("Online Version", function() : Pattern
+		{
+			return Pattern::ida("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8");
+		}, function(Pointer $pointer) : Pointer
 		{
 			return $pointer->add(3)->rip();
 		});
@@ -102,7 +123,10 @@ class GTA
 
 	function getPedFactory() : Pointer
 	{
-		return $this->getPatternScanResult("Ped Factory", "48 8B 05 ? ? ? ? 48 8B 48 08 48 85 C9 74 52 8B 81", function(Pointer $pointer) : Pointer
+		return $this->getPatternScanResult("Ped Factory", function() : Pattern
+		{
+			return Pattern::ida("48 8B 05 ? ? ? ? 48 8B 48 08 48 85 C9 74 52 8B 81");
+		}, function(Pointer $pointer) : Pointer
 		{
 			return $pointer->add(3)->rip();
 		})->dereference();
@@ -115,7 +139,10 @@ class GTA
 
 	function getScriptGlobal(int $global) : Pointer
 	{
-		return $this->getPatternScanResult("Script Globals", "48 8D 15 ? ? ? ? 4C 8B C0 E8 ? ? ? ? 48 85 FF 48 89 1D", function(Pointer $pointer) : Pointer
+		return $this->getPatternScanResult("Script Globals", function() : Pattern
+		{
+			return Pattern::ida("48 8D 15 ? ? ? ? 4C 8B C0 E8 ? ? ? ? 48 85 FF 48 89 1D");
+		}, function(Pointer $pointer) : Pointer
 		{
 			return $pointer->add(3)->rip();
 		})->add((($global >> 0x12) & 0x3F) * 8)->dereference()->add(($global & 0x3FFFF) * 8);
