@@ -104,17 +104,6 @@ const char* get_module_path(int32_t process_id, const char* module)
 }
 
 
-uint64_t open_process(int32_t process_id)
-{
-	return (uint64_t)OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE, FALSE, process_id);
-}
-
-void close_handle(uint64_t handle)
-{
-	CloseHandle((HANDLE)handle);
-}
-
-
 uint16_t buffer_size()
 {
 	return sizeof(buffer);

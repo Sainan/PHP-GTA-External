@@ -11,6 +11,6 @@ class Handle
 
 	function __destruct()
 	{
-		CppInterface::close_handle($this->handle);
+		Kernel32::CloseHandle($this->handle);
 	}
 }

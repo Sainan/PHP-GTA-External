@@ -25,7 +25,7 @@ class GTA
 			}
 		}
 		$this->process_id = $process_id;
-		$this->base = new Pointer(CppInterface::open_process($process_id), CppInterface::get_module_base($process_id, GTA_MODULE));
+		$this->base = new Pointer(Kernel32::OpenProcess($process_id), CppInterface::get_module_base($process_id, GTA_MODULE));
 	}
 
 	static function tryConstruct() : ?GTA

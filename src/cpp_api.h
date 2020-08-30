@@ -1,13 +1,9 @@
-#define FFI_SCOPE "cpp_api"
 #define FFI_LIB "../bin/cpp_api.dll"
 
 extern int32_t get_process_id(const char* exe_file);
 extern uint64_t get_module_base(int32_t process_id, const char* module);
 extern uint64_t get_module_size(int32_t process_id, const char* module);
 extern const char* get_module_path(int32_t process_id, const char* module);
-
-extern uint64_t open_process(int process_id);
-extern void close_handle(uint64_t handle);
 
 extern uint16_t buffer_size();
 extern uint8_t buffer_read_byte(uint16_t index);
