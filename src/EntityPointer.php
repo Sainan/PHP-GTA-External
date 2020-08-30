@@ -1,6 +1,7 @@
 <?php
-namespace V\Pointer;
-use V\Handle\ProcessHandle;
+namespace V;
+use PWH\
+{Handle\ProcessHandle, Pointer};
 class EntityPointer extends Pointer
 {
 	function __construct(ProcessHandle $processHandle, int $address)

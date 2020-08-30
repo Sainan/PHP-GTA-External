@@ -1,6 +1,7 @@
 <?php
-namespace V\Pointer;
-use V\Handle\ProcessHandle;
+namespace V;
+use PWH\
+{Handle\ProcessHandle, Pointer};
 class Vector3Pointer extends Pointer
 {
 	function __construct(ProcessHandle $processHandle, int $address)

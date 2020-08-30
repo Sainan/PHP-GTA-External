@@ -1,6 +1,6 @@
 # PHP V
 
-A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://github.com/dstogov/php-ffi) and [php-gui](https://github.com/gabrielrcouto/php-gui).
+A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https://github.com/dstogov/php-ffi) (via [PWH](https://github.com/Sainan/php-windows-hacking)) and [php-gui](https://github.com/gabrielrcouto/php-gui).
 
 ![Screenshot](screenshot.png)
 

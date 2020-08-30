@@ -18,7 +18,7 @@ $application->on("start", function() use ($gta, $application)
 		$application->getWindow()->setWidth(300)->setHeight(90);
 	});
 
-	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getOnlineVersion().", ".$gta->getEditionName()." Edition");
+	(new Label())->setLeft(20)->setTop(20)->setText("Detected ".$gta->getUniqueVersionAndEditionName());
 
 	(new Button())->setLeft(20)->setTop(40)->setValue("Self")->on("click", function() use ($gta, $application)
 	{

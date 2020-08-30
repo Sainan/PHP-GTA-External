@@ -6,8 +6,7 @@
 	},
 	"require": {
 		"php": "^7.4",
-		"ext-json": "*",
-		"ext-ffi": "*",
-		"gabrielrcouto/php-gui": "dev-master"
+		"gabrielrcouto/php-gui": "dev-master",
+		"sainan/php-windows-hacking": "dev-master"
 	}
 }

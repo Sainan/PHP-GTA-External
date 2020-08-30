@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fa62a037a297fcf97028dc16478e5e3",
+    "content-hash": "e3bd84d9a5e4c8e21a04f6e2296786e4",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -232,17 +232,53 @@
                 "stream"
             ],
             "time": "2017-03-08T08:17:17+00:00"
+        },
+        {
+            "name": "sainan/php-windows-hacking",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sainan/php-windows-hacking.git",
+                "reference": "b47d02e74b93c7e99418d97629d149fc9231370c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sainan/php-windows-hacking/zipball/b47d02e74b93c7e99418d97629d149fc9231370c",
+                "reference": "b47d02e74b93c7e99418d97629d149fc9231370c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ffi": "*",
+                "ext-json": "*",
+                "php": "^7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PWH\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Unlicense"
+            ],
+            "description": "PHP + FFI + KERNEL32.dll",
+            "homepage": "https://github.com/Sainan/php-windows-hacking",
+            "time": "2020-08-30T10:11:38+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "gabrielrcouto/php-gui": 20
+        "gabrielrcouto/php-gui": 20,
+        "sainan/php-windows-hacking": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.4"
+    },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
 }

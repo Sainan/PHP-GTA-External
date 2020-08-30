@@ -1,7 +1,8 @@
 <?php
+use PWH\Pattern;
+use PWH\Pointer;
+use V\GTA;
 require "vendor/autoload.php";
-use V\
-{GTA, Pattern, Pointer\Pointer};
 if(empty($argv[1]))
 {
 	die(/** @lang text */ "Syntax: php pattern.php <pattern> [mask]\n");
@@ -35,19 +36,21 @@ echo "new Pattern(".$pattern->toPatternString().")\n";
 echo "Pattern::ida(\"".$pattern->toIdaPatternString()."\")\n";
 echo "Pattern::binary(".$pattern->toBinaryPatternString().")\n\n";
 
-$gta = GTA::tryConstruct();
-if(!$gta instanceof GTA)
+try
+{
+	$gta = new GTA();
+}
+catch(Exception $e)
 {
 	return;
 }
 
-echo "\nGTA is open (".$gta->getOnlineVersion().", ".$gta->getEditionName()." Edition), scanning for this pattern...\n";
+echo "\nGTA is open (".$gta->getUniqueVersionAndEditionName()."), scanning for this pattern...\n";
 
-$module = $gta->getModule();
 $matches = 0;
-$pattern->scanAll($module, function(Pointer $pointer) use ($module, &$matches)
+$pattern->scanAll($gta->module, function(Pointer $pointer) use ($gta, &$matches)
 {
-	echo "> Match at ".$module->name."+".$module->getOffsetTo($pointer)." (".$pointer.")\n";
+	echo "> Match at ".$gta->module->name."+".$gta->module->getOffsetTo($pointer)." (".$pointer.")\n";
 	$matches++;
 });
 echo $matches." match".($matches == 1 ? "" : "es")." total.\n";
