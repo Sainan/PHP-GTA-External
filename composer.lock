@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3bd84d9a5e4c8e21a04f6e2296786e4",
+    "content-hash": "0e5a9725c9d5d2bcad31afe574b1bdb2",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -239,12 +239,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sainan/php-windows-hacking.git",
-                "reference": "b47d02e74b93c7e99418d97629d149fc9231370c"
+                "reference": "3cc42e4b06eadab47893b8dd9595f89fb8f95021"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sainan/php-windows-hacking/zipball/b47d02e74b93c7e99418d97629d149fc9231370c",
-                "reference": "b47d02e74b93c7e99418d97629d149fc9231370c",
+                "url": "https://api.github.com/repos/Sainan/php-windows-hacking/zipball/3cc42e4b06eadab47893b8dd9595f89fb8f95021",
+                "reference": "3cc42e4b06eadab47893b8dd9595f89fb8f95021",
                 "shasum": ""
             },
             "require": {
@@ -264,7 +264,7 @@
             ],
             "description": "PHP + FFI + KERNEL32.dll",
             "homepage": "https://github.com/Sainan/php-windows-hacking",
-            "time": "2020-08-30T10:11:38+00:00"
+            "time": "2020-08-31T11:44:02+00:00"
         }
     ],
     "packages-dev": [],
@@ -277,7 +277,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.4"
+        "php": "^7.4",
+        "ext-ffi": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
