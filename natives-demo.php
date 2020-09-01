@@ -1,6 +1,5 @@
 <?php
 require "vendor/autoload.php";
-use PWH\Pattern;
 use V\
 {GTA, NativeInvoker, Natives};
 
