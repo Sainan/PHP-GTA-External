@@ -28,7 +28,7 @@ function recursively_add_dir($dir)
 	global $zip;
 	foreach(scandir($dir) as $file)
 	{
-		if(!in_array($file, [".", "..", ".git", "cpp_api.cpp", "examples", "x86_64-linux", "phpgui-i386-darwin", "phpgui-i386-win32.exe", "phpgui-x86_64-freebsd", "phpgui-x86_64-linux"]))
+		if(!in_array($file, [".", "..", ".git", "examples", "x86_64-linux", "phpgui-i386-darwin", "phpgui-i386-win32.exe", "phpgui-x86_64-freebsd", "phpgui-x86_64-linux"]))
 		{
 			$path = $dir."/".$file;
 			if(is_dir($path))
