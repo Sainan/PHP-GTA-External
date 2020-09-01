@@ -42,7 +42,6 @@ function recursively_add_dir($dir)
 		}
 	}
 }
-recursively_add_dir("bin");
 recursively_add_dir("src");
 recursively_add_dir("vendor");
 $zip->close();
