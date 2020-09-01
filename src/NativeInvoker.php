@@ -65,7 +65,7 @@ EOC));
 		{
 			self::$entrypoints[$hash] = self::$gtaModule->callUInt64Function(self::$get_native_handler_address, self::$natives_registration_address, $hash);
 		}
-		self::$gtaModule->callVoidFunction(self::$entrypoints[$hash], self::$native_call_context->address);
+		self::$gtaModule->callVoidFunction(self::$entrypoints[$hash], self::$native_call_context);
 	}
 
 	static function getReturnInt64() : int

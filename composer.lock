@@ -239,12 +239,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sainan/php-windows-hacking.git",
-                "reference": "191a0b189d0f4a9a2325715477da100ff56ba864"
+                "reference": "18aafef7e34e85d9867bba04f22f9eaf239a5eb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sainan/php-windows-hacking/zipball/191a0b189d0f4a9a2325715477da100ff56ba864",
-                "reference": "191a0b189d0f4a9a2325715477da100ff56ba864",
+                "url": "https://api.github.com/repos/Sainan/php-windows-hacking/zipball/18aafef7e34e85d9867bba04f22f9eaf239a5eb3",
+                "reference": "18aafef7e34e85d9867bba04f22f9eaf239a5eb3",
                 "shasum": ""
             },
             "require": {
@@ -265,7 +265,7 @@
             ],
             "description": "PHP + FFI + KERNEL32.dll",
             "homepage": "https://github.com/Sainan/php-windows-hacking",
-            "time": "2020-09-01T05:16:09+00:00"
+            "time": "2020-09-01T06:40:09+00:00"
         }
     ],
     "packages-dev": [],
