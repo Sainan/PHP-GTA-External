@@ -1,8 +1,9 @@
 <?php
 require "vendor/autoload.php";
+use Gui\Application;
+use Gui\Components\
+{Button, InputNumber, Label, Window};
 use V\GTA;
-use Gui\
-{Application, Components\Button, Components\InputNumber, Components\Label, Components\Window};
 $gta = new GTA();
 $gta->initPatternScanResultsCache();
 $application = new Application([

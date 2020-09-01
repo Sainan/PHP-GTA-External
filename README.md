@@ -10,7 +10,7 @@ A proof-of-concept external mod menu for GTA V written in PHP using [FFI](https:
 
 1. Download `PHP-V.zip` from [the latest release](https://github.com/Sainan/PHP-V/releases).
 2. Extract the zip.
-3. Double-click `start.bat`.
+3. Double-click `php-v.bat`.
 
 ### The manual way
 
@@ -19,4 +19,4 @@ If you have:
 - PHP-CLI 7.4.x with the FFI extension enabled
 - [Composer](https://getcomposer.org/)
 
-Feel free to clone this repo, run `composer install` in the clone's directory, and if that worked fine, you can just execute `php run.php`.
+Feel free to clone this repo, run `composer install` in the clone's directory, and if that worked fine, you can just execute `php php-v.php`.
