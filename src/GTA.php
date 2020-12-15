@@ -16,7 +16,7 @@ class GTA extends AbstractProcess
 
 	function getUniqueVersionAndEditionName() : string
 	{
-		return $this->getOnlineVersion().", ".$this->getEditionName()." Edition";
+		return $this->getEditionName().", Build ".$this->getBuildVersion().", Online ".$this->getOnlineVersion();
 	}
 
 	function getEditionName() : string
@@ -32,15 +32,27 @@ class GTA extends AbstractProcess
 		return "Social Club";
 	}
 
-	function getOnlineVersion() : string
+	function getVersionsPointer() : Pointer
 	{
-		$pointer = $this->getPatternScanResult("Online Version", function() : Pattern
+		return $this->getPatternScanResult("Version Numbers", function() : Pattern
 		{
 			return Pattern::ida("4C 8D 05 ? ? ? ? 48 8D 15 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 15 ? ? ? ? 48 8D 4C 24 20 E8");
 		}, function(Pointer $pointer) : Pointer
 		{
-			return $pointer->add(3)->rip();
+			return $pointer;
 		});
+	}
+
+	function getBuildVersion() : string
+	{
+		$pointer = $this->getVersionsPointer()->subtract(165)->rip();
+		$pointer->ensureBuffer(7);
+		return $pointer->readString();
+	}
+
+	function getOnlineVersion() : string
+	{
+		$pointer = $this->getVersionsPointer()->add(3)->rip();
 		$pointer->ensureBuffer(5);
 		return $pointer->readString();
 	}
